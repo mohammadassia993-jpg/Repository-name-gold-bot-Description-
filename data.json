@@ -1,16 +1,16 @@
 {
-  "last_signal": "BUY_S",
+  "last_signal": "BUY_W",
   "last_price": 4593.0,
-  "last_sl": 4581.61,
-  "last_tp1": 4604.39,
-  "last_tp2": 4615.77,
-  "last_tp3": 4630.95,
-  "last_time": "2026-05-30 17:45",
+  "last_sl": 4571.62,
+  "last_tp1": 4603.41,
+  "last_tp2": 4613.82,
+  "last_time": "2026-05-31 20:01",
   "history": [],
   "total": 0,
   "wins": 0,
   "losses": 0,
   "min_score": 3,
   "week_signals": 0,
-  "week_wins": 0
+  "week_wins": 0,
+  "last_tp3": 4630.95
 }
