@@ -1,7 +1,7 @@
 name: Gold Bot
 on:
   schedule:
-    - cron: '0,30 8-20 * * 1-5'
+    - cron: '0,30 5-20 * * 1-5'
   workflow_dispatch:
 jobs:
   run:
