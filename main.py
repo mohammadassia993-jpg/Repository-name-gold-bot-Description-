@@ -1,12 +1,18 @@
-import requests, json, os
+import requests, json, os, time, threading
 from datetime import datetime, timezone, timedelta
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 BOT_TOKEN    = "8901717984:AAFaG9H3FNiIgfa2AGRVU8q7nTdn0kCoK4s"
 CHAT_ID      = "888229115"
-ATR_SL=1.5; ATR_TP1=1.5; ATR_TP2=3.0; ATR_TP3=5.0
 DATA_FILE    = "data.json"
 SYRIA_OPEN   = 8
 SYRIA_CLOSE  = 23
+
+# ── نسب SL/TP المحسّنة (R:R أفضل) ──
+ATR_SL  = 1.0   # أضيق من قبل (كان 1.5)
+ATR_TP1 = 2.0   # 1:2  (كان 1.5)
+ATR_TP2 = 3.5   # 1:3.5 (كان 3.0)
+ATR_TP3 = 6.0   # 1:6   (كان 5.0)
 
 def syria_now():
     return datetime.now(timezone.utc) + timedelta(hours=3)
@@ -24,7 +30,7 @@ def load_data():
         "last_sl":None,"last_tp1":None,
         "last_tp2":None,"last_time":None,
         "history":[],"total":0,"wins":0,
-        "losses":0,"min_score":3,
+        "losses":0,"min_score":4,
         "week_signals":0,"week_wins":0
     }
     try:
@@ -42,17 +48,14 @@ def save_data(data):
         print("خطا حفظ: "+str(e))
 
 def reset_daily_signal(data):
-    if not data.get("last_time"):
-        return data
+    if not data.get("last_time"): return data
     try:
-        last_dt = datetime.strptime(
-            data["last_time"], "%Y-%m-%d %H:%M")
-        last_dt = last_dt.replace(tzinfo=timezone.utc)
-        now_utc = datetime.now(timezone.utc)
-        hours_passed = (now_utc - last_dt).total_seconds() / 3600
-        if hours_passed > 15:
-            data["last_signal"] = None
-            print("تم تجديد الاشارة — مرت "+str(round(hours_passed))+" ساعة")
+        last_dt=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M")
+        last_dt=last_dt.replace(tzinfo=timezone.utc)
+        hours=(datetime.now(timezone.utc)-last_dt).total_seconds()/3600
+        if hours>15:
+            data["last_signal"]=None
+            print("تجديد يومي — "+str(round(hours))+" ساعة")
     except: pass
     return data
 
@@ -79,15 +82,11 @@ def check_last_signal(data, price):
             data["losses"]+=1; em="❌ خسارة"
         wr=round(data["wins"]/data["total"]*100) if data["total"]>0 else 0
         if data["total"]>=10:
-            if wr<50 and data["min_score"]<5:
-                data["min_score"]+=1
-            elif wr>70 and data["min_score"]>3:
-                data["min_score"]-=1
-        send_telegram(
-            em+" نتيجة الصفقة السابقة\n"
-            "النوع: "+sig+"\n"
-            "السعر: $"+str(round(price,2))+"\n"
-            "الاجمالي: "+str(data["wins"])+"W / "
+            if wr<50 and data["min_score"]<6: data["min_score"]+=1
+            elif wr>70 and data["min_score"]>3: data["min_score"]-=1
+        send_telegram(em+" نتيجة الصفقة السابقة\n"
+            "النوع: "+sig+"\nالسعر: $"+str(round(price,2))+"\n"
+            "الاجمالي: "+str(data["wins"])+"W/"
             +str(data["losses"])+"L | "+str(wr)+"%")
         data["last_signal"]=None
     return data
@@ -98,30 +97,24 @@ def check_weekly_report(data):
         t=data["total"]; w=data["wins"]; l=data["losses"]
         wr=round(w/t*100) if t>0 else 0
         bar="█"*int(wr/10)+"░"*(10-int(wr/10))
-        send_telegram(
-            "📊 تقرير الأسبوع — بوت الذهب\n"
-            "========================\n"
-            "الكلي: "+str(t)+" | ربح: "+str(w)
-            +" | خسارة: "+str(l)+"\n"
-            "نسبة النجاح: "+str(wr)+"%\n"
-            "["+bar+"]\n"
-            "هذا الأسبوع: "+str(data["week_signals"])
-            +" اشارة | "+str(data["week_wins"])+" ربح\n"
+        send_telegram("📊 تقرير الأسبوع\n"
+            "الكلي: "+str(t)+" | ربح: "+str(w)+" | خسارة: "+str(l)+"\n"
+            "نسبة النجاح: "+str(wr)+"%\n["+bar+"]\n"
             "الحد التكيفي: "+str(data["min_score"])+"/8")
         data["week_signals"]=0; data["week_wins"]=0
 
 def send_telegram(text):
     url="https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage"
     try:
-        r=requests.post(url,
-            data={"chat_id":CHAT_ID,"text":text},timeout=10)
+        r=requests.post(url,data={"chat_id":CHAT_ID,"text":text},timeout=10)
         return r.json().get("ok",False)
     except Exception as e:
         print("خطا ارسال: "+str(e)); return False
 
+# ── XAUUSD=X أولاً (سعر فوري = نفس MT5) ──
 def get_data(interval="15m", days="5d"):
     headers={"User-Agent":"Mozilla/5.0"}
-    for sym in ["GC=F","XAUUSD=X"]:
+    for sym in ["XAUUSD=X","GC=F"]:  # تغيير الأولوية
         try:
             url=("https://query1.finance.yahoo.com/v8/finance/chart/"
                  +sym+"?interval="+interval+"&range="+days)
@@ -135,7 +128,7 @@ def get_data(interval="15m", days="5d"):
             if mn>=30:
                 return closes[:mn],highs[:mn],lows[:mn],opens[:mn]
         except Exception as e:
-            print("خطا "+interval+": "+str(e))
+            print("خطا "+interval+" "+sym+": "+str(e))
     return None,None,None,None
 
 def ema(prices,n):
@@ -339,14 +332,12 @@ def analyze_smc(closes,highs,lows,opens,atr,is_buy):
     bull_fvgs,bear_fvgs=find_fvg(highs,lows,closes)
     liq_type,liq_level=check_liquidity_sweep(closes,highs,lows,atr)
     current=closes[-1]; smc_score=0; smc_notes=[]
-    ob_sl=None; active_ob=None
+    ob_sl=None
 
     if is_buy and bos_type=="BOS_BULL":
-        smc_score+=2
-        smc_notes.append("BOS صاعد عند $"+str(bos_level))
+        smc_score+=2; smc_notes.append("BOS صاعد $"+str(bos_level))
     elif not is_buy and bos_type=="BOS_BEAR":
-        smc_score+=2
-        smc_notes.append("BOS هابط عند $"+str(bos_level))
+        smc_score+=2; smc_notes.append("BOS هابط $"+str(bos_level))
     else:
         smc_notes.append("لا BOS واضح")
 
@@ -354,51 +345,41 @@ def analyze_smc(closes,highs,lows,opens,atr,is_buy):
         ol,oh=bull_ob
         if ol<=current<=oh*1.005:
             smc_score+=3
-            smc_notes.append("داخل OB شراء: $"+str(ol)
-                             +" — $"+str(oh)+" دخول مثالي")
-            ob_sl=round(ol-atr*0.3,2); active_ob=bull_ob
+            smc_notes.append("داخل OB شراء $"+str(ol)+"—$"+str(oh))
+            ob_sl=round(ol-atr*0.3,2)
         elif current>oh:
             smc_score+=1
-            smc_notes.append("OB شراء أسفل: $"+str(ol)+" — $"+str(oh))
-            active_ob=bull_ob
+            smc_notes.append("OB شراء: $"+str(ol)+"—$"+str(oh))
     elif not is_buy and bear_ob:
         ol,oh=bear_ob
         if ol*0.995<=current<=oh:
             smc_score+=3
-            smc_notes.append("داخل OB بيع: $"+str(ol)
-                             +" — $"+str(oh)+" دخول مثالي")
-            ob_sl=round(oh+atr*0.3,2); active_ob=bear_ob
+            smc_notes.append("داخل OB بيع $"+str(ol)+"—$"+str(oh))
+            ob_sl=round(oh+atr*0.3,2)
         elif current<ol:
             smc_score+=1
-            smc_notes.append("OB بيع فوق: $"+str(ol)+" — $"+str(oh))
-            active_ob=bear_ob
+            smc_notes.append("OB بيع: $"+str(ol)+"—$"+str(oh))
 
     if is_buy and bull_fvgs:
         fvg=bull_fvgs[-1]
         if abs(current-fvg[0])<atr*3:
             smc_score+=1
-            smc_notes.append("FVG صاعد: $"+str(fvg[0])
-                             +" — $"+str(fvg[1]))
+            smc_notes.append("FVG صاعد $"+str(fvg[0])+"—$"+str(fvg[1]))
     elif not is_buy and bear_fvgs:
         fvg=bear_fvgs[-1]
         if abs(current-fvg[1])<atr*3:
             smc_score+=1
-            smc_notes.append("FVG هابط: $"+str(fvg[0])
-                             +" — $"+str(fvg[1]))
+            smc_notes.append("FVG هابط $"+str(fvg[0])+"—$"+str(fvg[1]))
 
     if is_buy and liq_type=="BULL_SWEEP":
         smc_score+=2
-        smc_notes.append("اصطياد سيولة صاعد $"
-                         +str(liq_level)+" انعكاس مؤكد")
+        smc_notes.append("اصطياد سيولة صاعد $"+str(liq_level))
     elif not is_buy and liq_type=="BEAR_SWEEP":
         smc_score+=2
-        smc_notes.append("اصطياد سيولة هابط $"
-                         +str(liq_level)+" انعكاس مؤكد")
+        smc_notes.append("اصطياد سيولة هابط $"+str(liq_level))
 
     return {"smc_score":smc_score,"smc_notes":smc_notes,
-            "bos_type":bos_type,"bos_level":bos_level,
-            "active_ob":active_ob,"ob_sl":ob_sl,
-            "liq_type":liq_type,"liq_level":liq_level}
+            "bos_type":bos_type,"ob_sl":ob_sl}
 
 def analyze(closes,highs,lows,opens,min_score):
     price=round(closes[-1],2)
@@ -409,190 +390,165 @@ def analyze(closes,highs,lows,opens,min_score):
     score,reasons=0,[]
 
     if price>e20>e50:
-        score+=2; reasons.append("السعر فوق EMA20/50 صاعد")
+        score+=2; reasons.append("فوق EMA20/50 صاعد")
     elif price<e20<e50:
-        score-=2; reasons.append("السعر تحت EMA20/50 هابط")
-    else:
-        reasons.append("EMA محايد")
+        score-=2; reasons.append("تحت EMA20/50 هابط")
+    else: reasons.append("EMA محايد")
     if len(closes)>=200:
         e200=ema(closes,200)
-        if price>e200:
-            score+=1; reasons.append("فوق EMA200 صاعد طويل")
-        else:
-            score-=1; reasons.append("تحت EMA200 هابط طويل")
-    if r<30:
-        score+=2; reasons.append("RSI="+str(r)+" ذروة بيع")
-    elif r>70:
-        score-=2; reasons.append("RSI="+str(r)+" ذروة شراء")
-    else:
-        reasons.append("RSI="+str(r)+" محايد")
-    if macd>0:
-        score+=1; reasons.append("MACD="+str(macd)+" صاعد")
-    else:
-        score-=1; reasons.append("MACD="+str(macd)+" هابط")
+        if price>e200: score+=1; reasons.append("فوق EMA200 صاعد")
+        else: score-=1; reasons.append("تحت EMA200 هابط")
+    if r<30:   score+=2; reasons.append("RSI="+str(r)+" ذروة بيع")
+    elif r>70: score-=2; reasons.append("RSI="+str(r)+" ذروة شراء")
+    else:      reasons.append("RSI="+str(r)+" محايد")
+    if macd>0: score+=1; reasons.append("MACD="+str(macd)+" صاعد")
+    else:      score-=1; reasons.append("MACD="+str(macd)+" هابط")
     wz=" ذروة بيع" if oversold else(" ذروة شراء" if overbought else "")
-    if wt_sig=="BUY":
-        score+=2; reasons.append("WaveTrend تقاطع صاعد"+wz)
-    elif wt_sig=="SELL":
-        score-=2; reasons.append("WaveTrend تقاطع هابط"+wz)
-    else:
-        reasons.append("WaveTrend="+str(wt1)+" محايد"+wz)
+    if wt_sig=="BUY":    score+=2; reasons.append("WaveTrend صاعد"+wz)
+    elif wt_sig=="SELL": score-=2; reasons.append("WaveTrend هابط"+wz)
+    else: reasons.append("WaveTrend="+str(wt1)+" محايد"+wz)
 
-    if   score>=5:
-        st,stx,dr,em="BUY_S","شراء قوي جدا","صاعد قوي جدا","🟢"
-    elif score>=min_score:
-        st,stx,dr,em="BUY_W","شراء","صاعد","🔵"
-    elif score<=-5:
-        st,stx,dr,em="SELL_S","بيع قوي جدا","هابط قوي جدا","🔴"
-    elif score<=-min_score:
-        st,stx,dr,em="SELL_W","بيع","هابط","🟠"
-    else:
-        st,stx,dr,em="WAIT","انتظار","جانبي","⚪"
+    if   score>=5:          st,stx,dr,em="BUY_S","شراء قوي جدا","صاعد قوي جدا","🟢"
+    elif score>=min_score:  st,stx,dr,em="BUY_W","شراء","صاعد","🔵"
+    elif score<=-5:         st,stx,dr,em="SELL_S","بيع قوي جدا","هابط قوي جدا","🔴"
+    elif score<=-min_score: st,stx,dr,em="SELL_W","بيع","هابط","🟠"
+    else:                   st,stx,dr,em="WAIT","انتظار","جانبي","⚪"
 
     buy="BUY" in st
-    lv={"entry":price,
+    zone=round(a*0.3,2)
+    lv={
+        "entry":price,
+        "entry_zone_low" :round(price-zone if buy else price-zone,2),
+        "entry_zone_high":round(price+zone if buy else price+zone,2),
         "sl" :round(price-a*ATR_SL  if buy else price+a*ATR_SL, 2),
         "tp1":round(price+a*ATR_TP1 if buy else price-a*ATR_TP1,2),
         "tp2":round(price+a*ATR_TP2 if buy else price-a*ATR_TP2,2),
-        "tp3":round(price+a*ATR_TP3 if buy else price-a*ATR_TP3,2)}
+        "tp3":round(price+a*ATR_TP3 if buy else price-a*ATR_TP3,2)
+    }
     return dict(st=st,stx=stx,dr=dr,emoji=em,score=score,
                 rsi=r,macd=macd,e20=e20,e50=e50,atr=a,
                 wt1=wt1,wt_sig=wt_sig,price=price,
                 lv=lv,reasons=reasons)
 
-def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,
-              filters,wr,total,min_sc):
+def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
     lv=r["lv"]
     rs="\n".join("- "+x for x in r["reasons"])
-    sn="\n".join("• "+x for x in smc["smc_notes"])
+    sn="\n".join("- "+x for x in smc["smc_notes"])
     now=syria_time_str()
-    arrow="↑" if r["wt_sig"]=="BUY" else(
-          "↓" if r["wt_sig"]=="SELL" else "-")
-    tbar="".join(["█" if i<abs(r["score"]) else "░"
-                  for i in range(8)])
-    sbar="".join(["█" if i<smc["smc_score"] else "░"
-                  for i in range(8)])
+    arrow="↑" if r["wt_sig"]=="BUY" else("↓" if r["wt_sig"]=="SELL" else"-")
+    tbar="".join(["█" if i<abs(r["score"]) else "░" for i in range(8)])
+    sbar="".join(["█" if i<smc["smc_score"] else "░" for i in range(8)])
     sl_final=smc["ob_sl"] if smc["ob_sl"] else lv["sl"]
-    sl_note="(تحت OB)" if smc["ob_sl"] else "(ATR)"
-    perf=" | اداء: "+str(wr)+"%" if total>0 else ""
+    sl_note="(OB)" if smc["ob_sl"] else "(ATR)"
+    perf=" | "+str(wr)+"%" if total>0 else ""
+
+    # نسبة R:R
+    rr=round(abs(lv["tp1"]-lv["entry"])/abs(lv["sl"]-lv["entry"]),1) if lv["sl"]!=lv["entry"] else 0
+
     return (
-        r["emoji"]+" تحليل الذهب XAUUSD M15\n"
-        "================================\n"
+        r["emoji"]+" الذهب XAUUSD M15 — إشارة\n"
+        "========================\n"
         "السعر:    $"+str(r["price"])+"\n"
         "الاتجاه:  "+r["dr"]+"\n"
         "الاشارة:  "+r["stx"]+"\n"
-        "فني:  ["+tbar+"] "+str(abs(r["score"]))+"/8\n"
-        "SMC:  ["+sbar+"] "+str(smc["smc_score"])+"/8\n"
-        "الفلاتر: "+str(filters)+"/3"+perf+"\n\n"
+        "فني: ["+tbar+"] "+str(abs(r["score"]))+"/8\n"
+        "SMC: ["+sbar+"] "+str(smc["smc_score"])+"/8\n"
+        "فلاتر: "+str(filters)+"/3"+perf+"\n\n"
         "السياق:\n"
-        "• "+h1n+" | "+d1_n+"\n"
-        "• "+dxy_n+"\n"
-        "• "+regime_n+"\n\n"
-        "التحليل الفني:\n"+rs+"\n\n"
-        "================================\n"
-        "🏛 Smart Money (SMC):\n"+sn+"\n\n"
-        "================================\n"
-        "مستويات التداول:\n"
-        "الدخول:      $"+str(lv["entry"])+"\n"
+        "- "+h1n+" | "+d1_n+"\n"
+        "- "+dxy_n+"\n"
+        "- "+regime_n+"\n\n"
+        "فني:\n"+rs+"\n\n"
+        "SMC:\n"+sn+"\n\n"
+        "========================\n"
+        "منطقة الدخول (Spot):\n"
+        "$"+str(lv["entry_zone_low"])+" — $"+str(lv["entry_zone_high"])+"\n"
         "وقف الخسارة: $"+str(sl_final)+" "+sl_note+"\n"
-        "TP1: $"+str(lv["tp1"])+"\n"
+        "TP1 (R:R=1:"+str(rr)+"): $"+str(lv["tp1"])+"\n"
         "TP2: $"+str(lv["tp2"])+"\n"
         "TP3: $"+str(lv["tp3"])+"\n\n"
-        "الحد التكيفي: "+str(min_sc)+"/8\n"
+        "⚠️ استخدم سعر MT5 للدخول\n"
+        "الحد: "+str(min_sc)+"/8\n"
         "الوقت: "+now
     )
 
 def job():
     data=load_data()
     if not in_session():
-        now=syria_now()
-        print("خارج ساعات العمل | "
-              +str(now.hour)+":"
-              +str(now.minute).zfill(2)+" سوريا")
+        print("خارج ساعات العمل")
         return
-
     closes,highs,lows,opens=get_data("15m","5d")
     if closes is None:
-        print("فشل جلب M15"); return
-
+        print("فشل جلب البيانات"); return
     data=reset_daily_signal(data)
     data=check_last_signal(data,closes[-1])
     check_weekly_report(data)
-
     min_sc=data["min_score"]
     r=analyze(closes,highs,lows,opens,min_sc)
-
     if r["st"]=="WAIT":
-        print("لا اشارة | Score="+str(r["score"]))
-        save_data(data); return
-
+        print("لا اشارة | Score="+str(r["score"])); save_data(data); return
     if r["st"]==data["last_signal"]:
-        print("نفس الاشارة - تخطي")
-        save_data(data); return
-
+        print("نفس الاشارة"); save_data(data); return
     is_buy="BUY" in r["st"]
     filters=0; blocked=False; block_reason=""
-
     h1_dir,h1_note=get_h1_trend()
-    if h1_dir=="UP" and is_buy:
-        filters+=1
-    elif h1_dir=="DOWN" and not is_buy:
-        filters+=1
-    elif h1_dir=="NEUTRAL":
-        filters+=1
-    else:
-        blocked=True; block_reason="عكس H1"
-
+    if h1_dir=="UP" and is_buy:         filters+=1
+    elif h1_dir=="DOWN" and not is_buy: filters+=1
+    elif h1_dir=="NEUTRAL":             filters+=1
+    else: blocked=True; block_reason="عكس H1"
     if not blocked:
         res,sup=find_key_levels(highs,lows,closes)
         nr,_=check_near_level(r["price"],res,r["atr"],True)
         ns,_=check_near_level(r["price"],sup,r["atr"],False)
-        if is_buy and nr:
-            blocked=True; block_reason="قريب مقاومة"
-        elif not is_buy and ns:
-            blocked=True; block_reason="قريب دعم"
-        else:
-            filters+=1
-
+        if is_buy and nr:       blocked=True; block_reason="مقاومة"
+        elif not is_buy and ns: blocked=True; block_reason="دعم"
+        else: filters+=1
     if not blocked:
         nd,nn=check_news()
         if nd: blocked=True; block_reason=nn
         else: filters+=1
-
     if blocked:
-        print("مرفوضة: "+block_reason)
-        save_data(data); return
-
+        print("مرفوضة: "+block_reason); save_data(data); return
     dxy_dir,dxy_note=get_dxy_trend()
     d1_dir,d1_note=get_d1_trend()
     regime,regime_note=detect_market_regime(closes,highs,lows)
     smc=analyze_smc(closes,highs,lows,opens,r["atr"],is_buy)
-    print("SMC Score: "+str(smc["smc_score"])+"/8")
-
     total=data["total"]
     wr=round(data["wins"]/total*100) if total>0 else 0
-
     msg=build_msg(r,smc,h1_note,dxy_note,d1_note,
                   regime_note,filters,wr,total,min_sc)
-
     if send_telegram(msg):
-        print("تم: "+r["stx"]+" @ $"+str(r["price"])
-              +" | فني:"+str(r["score"])
-              +" SMC:"+str(smc["smc_score"]))
+        print("✅ "+r["stx"]+" @ $"+str(r["price"]))
         data["last_signal"]=r["st"]
         data["last_price"]=r["price"]
-        data["last_sl"]=(smc["ob_sl"]
-                         if smc["ob_sl"] else r["lv"]["sl"])
+        data["last_sl"]=smc["ob_sl"] if smc["ob_sl"] else r["lv"]["sl"]
         data["last_tp1"]=r["lv"]["tp1"]
         data["last_tp2"]=r["lv"]["tp2"]
-        data["last_time"]=datetime.now(
-            timezone.utc).strftime("%Y-%m-%d %H:%M")
-    else:
-        print("فشل الارسال")
-
+        data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
     save_data(data)
 
-print("بوت الذهب v9 النهائي")
-print(syria_time_str())
-print("ساعات العمل: 8:00 صباحاً — 11:00 مساءً سوريا")
-job()
+# ════════════════════════════════════════
+# للتشغيل على PythonAnywhere Web App
+# ════════════════════════════════════════
+class KeepAlive(BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
+        self.wfile.write(b"Gold Bot Running!")
+    def log_message(self,*a): pass
+
+def run_server():
+    HTTPServer(('0.0.0.0',8080),KeepAlive).serve_forever()
+
+def run_bot():
+    while True:
+        try: job()
+        except Exception as e: print("خطا: "+str(e))
+        time.sleep(300)
+
+# ════════════════════════════════════════
+if __name__ == "__main__":
+    print("بوت الذهب v10")
+    print(syria_time_str())
+    threading.Thread(target=run_server,daemon=True).start()
+    run_bot()
