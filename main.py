@@ -30,7 +30,7 @@ def load_data():
         "last_sl":None,"last_tp1":None,
         "last_tp2":None,"last_time":None,
         "history":[],"total":0,"wins":0,
-        "losses":0,"min_score":4,
+        "losses":0,"min_score":3,
         "week_signals":0,"week_wins":0
     }
     try:
@@ -550,5 +550,4 @@ def run_bot():
 if __name__ == "__main__":
     print("بوت الذهب v10")
     print(syria_time_str())
-    threading.Thread(target=run_server,daemon=True).start()
-    run_bot()
+    job()
