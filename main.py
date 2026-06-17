@@ -113,23 +113,28 @@ def send_telegram(text):
 
 # ── XAUUSD=X أولاً (سعر فوري = نفس MT5) ──
 def get_data(interval="15m", days="5d"):
-    headers={"User-Agent":"Mozilla/5.0"}
-    for sym in ["XAUUSD=X","GC=F"]:  # تغيير الأولوية
-        try:
-            url=("https://query1.finance.yahoo.com/v8/finance/chart/"
-                 +sym+"?interval="+interval+"&range="+days)
-            r=requests.get(url,headers=headers,timeout=10)
-            q=r.json()["chart"]["result"][0]["indicators"]["quote"][0]
-            closes=[x for x in q["close"] if x]
-            highs =[x for x in q["high"]  if x]
-            lows  =[x for x in q["low"]   if x]
-            opens =[x for x in q["open"]  if x]
-            mn=min(len(closes),len(highs),len(lows),len(opens))
-            if mn>=30:
-                return closes[:mn],highs[:mn],lows[:mn],opens[:mn]
-        except Exception as e:
-            print("خطا "+interval+" "+sym+": "+str(e))
-    return None,None,None,None
+    try:
+        tf = {"15m":"15min","1h":"1h","1d":"1day"}.get(interval, "15min")
+        url = f"https://api.twelvedata.com/time_series?symbol=XAU/USD&interval={tf}&outputsize=60&apikey=79e9b614595f44d3aa03a0be47e19ae"
+        r = requests.get(url, timeout=10)
+        data = r.json()
+        vals = data.get("values", [])
+        if not vals:
+            print("لا بيانات من Twelve Data: " + str(data))
+            return None, None, None, None
+        vals = vals[::-1]
+        closes = [float(x["close"]) for x in vals]
+        highs  = [float(x["high"])  for x in vals]
+        lows   = [float(x["low"])   for x in vals]
+        opens  = [float(x["open"])  for x in vals]
+        mn = min(len(closes), len(highs), len(lows), len(opens))
+        if mn >= 30:
+            return closes[:mn], highs[:mn], lows[:mn], opens[:mn]
+        return None, None, None, None
+    except Exception as e:
+        print("خطأ Twelve Data: " + str(e))
+        return None, None, None, None
+
 
 def ema(prices,n):
     if len(prices)<n: return prices[-1]
