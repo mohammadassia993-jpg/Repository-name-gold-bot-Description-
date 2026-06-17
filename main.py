@@ -115,7 +115,7 @@ def send_telegram(text):
 def get_data(interval="15m", days="5d"):
     try:
         tf = {"15m":"15min","1h":"1h","1d":"1day"}.get(interval, "15min")
-        url = f"https://api.twelvedata.com/time_series?symbol=XAU/USD&interval={tf}&outputsize=60&apikey=79e9b614595f44d3aa03a0be47e19ae"
+        url = f"https://api.twelvedata.com/time_series?symbol=XAU/USD&interval={tf}&outputsize=60&apikey=79e9b614595f44d3aa03a0be47e19ae6"
         r = requests.get(url, timeout=10)
         data = r.json()
         vals = data.get("values", [])
