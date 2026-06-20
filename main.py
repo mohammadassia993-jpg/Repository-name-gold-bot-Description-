@@ -2,8 +2,9 @@ import requests, json, os, time, threading
 from datetime import datetime, timezone, timedelta
 from http.server import HTTPServer, BaseHTTPRequestHandler
 
-BOT_TOKEN    = "8901717984:AAFaG9H3FNiIgfa2AGRVU8q7nTdn0kCoK4s"
-CHAT_ID      = "888229115"
+BOT_TOKEN      = os.environ.get("BOT_TOKEN", "")
+CHAT_ID        = os.environ.get("CHAT_ID", "")
+TWELVE_API_KEY = os.environ.get("TWELVE_API_KEY", "")
 DATA_FILE    = "data.json"
 SYRIA_OPEN   = 8
 SYRIA_CLOSE  = 23
@@ -141,7 +142,7 @@ def send_telegram(text):
 def get_data(interval="15m", days="5d"):
     try:
         tf = {"15m":"15min","1h":"1h","1d":"1day"}.get(interval, "15min")
-        url = f"https://api.twelvedata.com/time_series?symbol=XAU/USD&interval={tf}&outputsize=60&apikey=79e9b614595f44d3aa03a0be47e19ae6"
+        url = f"https://api.twelvedata.com/time_series?symbol=XAU/USD&interval={tf}&outputsize=60&apikey={TWELVE_API_KEY}"
         r = requests.get(url, timeout=10)
         data = r.json()
         vals = data.get("values", [])
