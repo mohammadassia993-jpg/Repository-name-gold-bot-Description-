@@ -10,7 +10,9 @@
   "wins": 2,
   "losses": 2,
   "min_score": 3,
-  "week_signals": 1,
-  "week_wins": 1,
+  "week_signals": 0,
+  "week_wins": 0,
+  "week_trades": [],
+  "last_report_date": "2026-06-20",
   "last_tp3": 4630.95
 }
