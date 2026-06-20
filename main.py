@@ -21,7 +21,10 @@ def syria_time_str():
     return syria_now().strftime("%Y-%m-%d %H:%M") + " (سوريا)"
 
 def in_session():
-    h = syria_now().hour
+    now = syria_now()
+    if now.weekday() >= 5:  # 5=السبت, 6=الأحد
+        return False
+    h = now.hour
     return SYRIA_OPEN <= h < SYRIA_CLOSE
 
 def load_data():
@@ -31,7 +34,8 @@ def load_data():
         "last_tp2":None,"last_time":None,
         "history":[],"total":0,"wins":0,
         "losses":0,"min_score":3,
-        "week_signals":0,"week_wins":0
+        "week_signals":0,"week_wins":0,
+        "week_trades":[],"last_report_date":None
     }
     try:
         if os.path.exists(DATA_FILE):
@@ -75,6 +79,7 @@ def check_last_signal(data, price):
         elif price>=sl:  result="LOSS"
     if result:
         data["total"]+=1; data["week_signals"]+=1
+        pips=round((price-data["last_price"])/0.1,1) if is_buy else round((data["last_price"]-price)/0.1,1)
         if "WIN" in result:
             data["wins"]+=1; data["week_wins"]+=1
             em="✅ ربح كبير" if result=="WIN_BIG" else "✅ ربح"
@@ -84,8 +89,13 @@ def check_last_signal(data, price):
         if data["total"]>=10:
             if wr<50 and data["min_score"]<6: data["min_score"]+=1
             elif wr>70 and data["min_score"]>3: data["min_score"]-=1
+        data.setdefault("week_trades",[]).append({
+            "sig":sig,"entry":data["last_price"],"exit":price,
+            "pips":pips,"result":result
+        })
         send_telegram(em+" نتيجة الصفقة السابقة\n"
             "النوع: "+sig+"\nالسعر: $"+str(round(price,2))+"\n"
+            "النقاط: "+("+" if pips>=0 else "")+str(pips)+"\n"
             "الاجمالي: "+str(data["wins"])+"W/"
             +str(data["losses"])+"L | "+str(wr)+"%")
         data["last_signal"]=None
@@ -93,15 +103,31 @@ def check_last_signal(data, price):
 
 def check_weekly_report(data):
     now=syria_now()
-    if now.weekday()==4 and 18<=now.hour<=21:
-        t=data["total"]; w=data["wins"]; l=data["losses"]
-        wr=round(w/t*100) if t>0 else 0
-        bar="█"*int(wr/10)+"░"*(10-int(wr/10))
-        send_telegram("📊 تقرير الأسبوع\n"
-            "الكلي: "+str(t)+" | ربح: "+str(w)+" | خسارة: "+str(l)+"\n"
-            "نسبة النجاح: "+str(wr)+"%\n["+bar+"]\n"
-            "الحد التكيفي: "+str(data["min_score"])+"/8")
-        data["week_signals"]=0; data["week_wins"]=0
+    if now.weekday()!=5:
+        return data
+    today_str=now.strftime("%Y-%m-%d")
+    if data.get("last_report_date")==today_str:
+        return data
+    trades=data.get("week_trades",[])
+    t=len(trades)
+    w=sum(1 for x in trades if "WIN" in x["result"])
+    l=t-w
+    wr=round(w/t*100) if t>0 else 0
+    lines=["📊 التقرير الأسبوعي (آخر 5 أيام)\n"]
+    if trades:
+        for i,tr in enumerate(trades,1):
+            emj="✅" if "WIN" in tr["result"] else "❌"
+            sgn="+" if tr["pips"]>=0 else ""
+            lines.append(str(i)+") "+tr["sig"]+" "+emj+" "+sgn+str(tr["pips"])+" نقطة\n")
+    else:
+        lines.append("لا صفقات هذا الأسبوع\n")
+    lines.append("\nالإجمالي: "+str(t)+" | رابحة: "+str(w)+" | خاسرة: "+str(l)
+                 +"\nنسبة النجاح: "+str(wr)+"%\nالحد التكيفي: "+str(data["min_score"])+"/8")
+    send_telegram("".join(lines))
+    data["week_trades"]=[]
+    data["week_signals"]=0; data["week_wins"]=0
+    data["last_report_date"]=today_str
+    return data
 
 def send_telegram(text):
     url="https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage"
@@ -479,6 +505,11 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
 
 def job():
     data=load_data()
+    if syria_now().weekday()==5:
+        print("السبت — تقرير اسبوعي فقط")
+        data=check_weekly_report(data)
+        save_data(data)
+        return
     if not in_session():
         print("خارج ساعات العمل")
         return
@@ -487,7 +518,6 @@ def job():
         print("فشل جلب البيانات"); return
     data=reset_daily_signal(data)
     data=check_last_signal(data,closes[-1])
-    check_weekly_report(data)
     min_sc=data["min_score"]
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
