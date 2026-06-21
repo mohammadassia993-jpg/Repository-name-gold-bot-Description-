@@ -456,6 +456,7 @@ def analyze(closes,highs,lows,opens,min_score):
     else:                   st,stx,dr,em="WAIT","انتظار","جانبي","⚪"
 
     buy="BUY" in st
+    mh,ml=max(highs[-20:]),min(lows[-20:])  # نطاق هيكلي بدون تأخير (20 شمعة)
     zone=round(a*0.3,2)
     lv={
         "entry":price,
@@ -464,7 +465,8 @@ def analyze(closes,highs,lows,opens,min_score):
         "sl" :round(price-a*ATR_SL  if buy else price+a*ATR_SL, 2),
         "tp1":round(price+a*ATR_TP1 if buy else price-a*ATR_TP1,2),
         "tp2":round(price+a*ATR_TP2 if buy else price-a*ATR_TP2,2),
-        "tp3":round(price+a*ATR_TP3 if buy else price-a*ATR_TP3,2)
+        "tp3":round(price+a*ATR_TP3 if buy else price-a*ATR_TP3,2),
+        "tp_structure":round(mh,2) if buy else round(ml,2)
     }
     return dict(st=st,stx=stx,dr=dr,emoji=em,score=score,
                 rsi=r,macd=macd,e20=e20,e50=e50,atr=a,
@@ -507,7 +509,8 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
         "وقف الخسارة: $"+str(sl_final)+" "+sl_note+"\n"
         "TP1 (R:R=1:"+str(rr)+"): $"+str(lv["tp1"])+"\n"
         "TP2: $"+str(lv["tp2"])+"\n"
-        "TP3: $"+str(lv["tp3"])+"\n\n"
+        "TP3: $"+str(lv["tp3"])+"\n"
+        "🎯 هدف هيكلي (20 شمعة): $"+str(lv["tp_structure"])+"\n\n"
         "⚠️ استخدم سعر MT5 للدخول\n"
         "الحد: "+str(min_sc)+"/8\n"
         "الوقت: "+now
