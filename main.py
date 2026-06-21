@@ -36,7 +36,8 @@ def load_data():
         "history":[],"total":0,"wins":0,
         "losses":0,"min_score":3,
         "week_signals":0,"week_wins":0,
-        "week_trades":[],"last_report_date":None
+        "week_trades":[],"last_report_date":None,
+        "consecutive_losses":0,"breaker_until":None
     }
     try:
         if os.path.exists(DATA_FILE):
@@ -83,9 +84,17 @@ def check_last_signal(data, price):
         pips=round((price-data["last_price"])/0.1,1) if is_buy else round((data["last_price"]-price)/0.1,1)
         if "WIN" in result:
             data["wins"]+=1; data["week_wins"]+=1
+            data["consecutive_losses"]=0
             em="✅ ربح كبير" if result=="WIN_BIG" else "✅ ربح"
         else:
             data["losses"]+=1; em="❌ خسارة"
+            data["consecutive_losses"]=data.get("consecutive_losses",0)+1
+            if data["consecutive_losses"]>=4 and not data.get("breaker_until"):
+                until=datetime.now(timezone.utc)+timedelta(hours=24)
+                data["breaker_until"]=until.strftime("%Y-%m-%d %H:%M")
+                send_telegram("⛔ قاطع الدائرة مُفعّل\n"
+                    "4 خسائر متتالية — إيقاف الإشارات 24 ساعة للمراجعة\n"
+                    "سيُستأنف العمل تلقائياً بعد: "+data["breaker_until"]+" UTC")
         wr=round(data["wins"]/data["total"]*100) if data["total"]>0 else 0
         if data["total"]>=10:
             if wr<50 and data["min_score"]<6: data["min_score"]+=1
@@ -519,6 +528,17 @@ def job():
         print("فشل جلب البيانات"); return
     data=reset_daily_signal(data)
     data=check_last_signal(data,closes[-1])
+    bu=data.get("breaker_until")
+    if bu:
+        until_dt=datetime.strptime(bu,"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+        if datetime.now(timezone.utc) < until_dt:
+            print("⛔ قاطع الدائرة نشط حتى "+bu)
+            save_data(data)
+            return
+        else:
+            data["breaker_until"]=None
+            data["consecutive_losses"]=0
+            send_telegram("✅ انتهى إيقاف القاطع — البوت يعمل بشكل طبيعي الآن")
     min_sc=data["min_score"]
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
