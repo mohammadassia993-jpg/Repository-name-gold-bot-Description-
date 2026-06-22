@@ -37,7 +37,8 @@ def load_data():
         "losses":0,"min_score":3,
         "week_signals":0,"week_wins":0,
         "week_trades":[],"last_report_date":None,
-        "consecutive_losses":0,"breaker_until":None
+        "consecutive_losses":0,"breaker_until":None,
+        "last_check":None,"last_reason":None
     }
     try:
         if os.path.exists(DATA_FILE):
@@ -536,6 +537,8 @@ def job():
         until_dt=datetime.strptime(bu,"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
         if datetime.now(timezone.utc) < until_dt:
             print("⛔ قاطع الدائرة نشط حتى "+bu)
+            data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+            data["last_reason"]="قاطع الدائرة نشط حتى "+bu
             save_data(data)
             return
         else:
@@ -545,9 +548,15 @@ def job():
     min_sc=data["min_score"]
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
-        print("لا اشارة | Score="+str(r["score"])); save_data(data); return
+        print("لا اشارة | Score="+str(r["score"]))
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="لا اشارة (Score="+str(r["score"])+"/"+str(min_sc)+")"
+        save_data(data); return
     if r["st"]==data["last_signal"]:
-        print("نفس الاشارة"); save_data(data); return
+        print("نفس الاشارة")
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="نفس الاشارة السابقة ("+r["st"]+")"
+        save_data(data); return
     is_buy="BUY" in r["st"]
     filters=0; blocked=False; block_reason=""
     h1_dir,h1_note=get_h1_trend()
@@ -573,7 +582,10 @@ def job():
         if nd: blocked=True; block_reason=nn
         else: filters+=1
     if blocked:
-        print("مرفوضة: "+block_reason); save_data(data); return
+        print("مرفوضة: "+block_reason)
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="مرفوضة ("+r["st"]+"): "+block_reason
+        save_data(data); return
     d1_dir,d1_note=get_d1_trend()
     regime,regime_note=detect_market_regime(closes,highs,lows)
     smc=analyze_smc(closes,highs,lows,opens,r["atr"],is_buy)
@@ -589,6 +601,10 @@ def job():
         data["last_tp1"]=r["lv"]["tp1"]
         data["last_tp2"]=r["lv"]["tp2"]
         data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="إشارة مُرسلة: "+r["st"]
+    else:
+        data["last_reason"]="فشل إرسال Telegram"
+    data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
     save_data(data)
 
 # ════════════════════════════════════════
