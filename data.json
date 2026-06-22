@@ -14,5 +14,7 @@
   "week_wins": 0,
   "week_trades": [],
   "last_report_date": "2026-06-20",
+  "consecutive_losses": 0,
+  "breaker_until": null,
   "last_tp3": 4630.95
 }
