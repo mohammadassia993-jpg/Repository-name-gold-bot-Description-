@@ -496,7 +496,7 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
         "الاشارة:  "+r["stx"]+"\n"
         "فني: ["+tbar+"] "+str(abs(r["score"]))+"/8\n"
         "SMC: ["+sbar+"] "+str(smc["smc_score"])+"/8\n"
-        "فلاتر: "+str(filters)+"/3"+perf+"\n\n"
+        "فلاتر: "+str(filters)+"/4"+perf+"\n\n"
         "السياق:\n"
         "- "+h1n+" | "+d1_n+"\n"
         "- "+dxy_n+"\n"
@@ -556,6 +556,12 @@ def job():
     elif h1_dir=="NEUTRAL":             filters+=1
     else: blocked=True; block_reason="عكس H1"
     if not blocked:
+        dxy_dir,dxy_note=get_dxy_trend()
+        if dxy_dir=="DOWN" and is_buy:       filters+=1
+        elif dxy_dir=="UP" and not is_buy:   filters+=1
+        elif dxy_dir=="NEUTRAL":             filters+=1
+        else: blocked=True; block_reason="عكس DXY"
+    if not blocked:
         res,sup=find_key_levels(highs,lows,closes)
         nr,_=check_near_level(r["price"],res,r["atr"],True)
         ns,_=check_near_level(r["price"],sup,r["atr"],False)
@@ -568,7 +574,6 @@ def job():
         else: filters+=1
     if blocked:
         print("مرفوضة: "+block_reason); save_data(data); return
-    dxy_dir,dxy_note=get_dxy_trend()
     d1_dir,d1_note=get_d1_trend()
     regime,regime_note=detect_market_regime(closes,highs,lows)
     smc=analyze_smc(closes,highs,lows,opens,r["atr"],is_buy)
