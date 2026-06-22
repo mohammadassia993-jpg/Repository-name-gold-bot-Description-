@@ -16,7 +16,7 @@
   "last_report_date": "2026-06-20",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-06-22 16:45",
-  "last_reason": "فشل إرسال Telegram",
+  "last_check": "2026-06-22 17:00",
+  "last_reason": "مرفوضة (SELL_W): عكس H1",
   "last_tp3": 4630.95
 }
