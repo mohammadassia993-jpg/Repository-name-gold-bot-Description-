@@ -569,7 +569,7 @@ def job():
         if dxy_dir=="DOWN" and is_buy:       filters+=1
         elif dxy_dir=="UP" and not is_buy:   filters+=1
         elif dxy_dir=="NEUTRAL":             filters+=1
-        else: blocked=True; block_reason="عكس DXY"
+        # تعارض DXY لا يمنع الصفقة بعد الآن، فقط لا يُحسب كنقطة تأكيد
     if not blocked:
         res,sup=find_key_levels(highs,lows,closes)
         nr,_=check_near_level(r["price"],res,r["atr"],True)
