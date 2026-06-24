@@ -24,8 +24,8 @@
   "last_report_date": "2026-06-20",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-06-24 13:45",
-  "last_reason": "إشارة مُرسلة: SELL_W",
+  "last_check": "2026-06-24 13:53",
+  "last_reason": "نفس الاشارة السابقة (SELL_W)",
   "last_tp3": 4630.95,
   "tg_test": true,
   "tg_test_error": ""
