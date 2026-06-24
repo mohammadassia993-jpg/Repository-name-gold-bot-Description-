@@ -525,9 +525,6 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
 
 def job():
     data=load_data()
-    data["tg_test"]=send_telegram("🔧 رسالة اختبار تشخيصية")
-    data["tg_test_error"]="" if data["tg_test"] else LAST_TG_ERROR
-    save_data(data)
     if syria_now().weekday()==5:
         print("السبت — تقرير اسبوعي فقط")
         data=check_weekly_report(data)
