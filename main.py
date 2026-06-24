@@ -140,12 +140,18 @@ def check_weekly_report(data):
     data["last_report_date"]=today_str
     return data
 
+LAST_TG_ERROR=""
 def send_telegram(text):
+    global LAST_TG_ERROR
     url="https://api.telegram.org/bot"+BOT_TOKEN+"/sendMessage"
     try:
         r=requests.post(url,data={"chat_id":CHAT_ID,"text":text},timeout=10)
-        return r.json().get("ok",False)
+        ok=r.json().get("ok",False)
+        if not ok:
+            LAST_TG_ERROR="HTTP"+str(r.status_code)+": "+str(r.text)[:200]
+        return ok
     except Exception as e:
+        LAST_TG_ERROR="Exception: "+str(e)
         print("خطا ارسال: "+str(e)); return False
 
 # ── XAUUSD=X أولاً (سعر فوري = نفس MT5) ──
@@ -519,6 +525,9 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
 
 def job():
     data=load_data()
+    data["tg_test"]=send_telegram("🔧 رسالة اختبار تشخيصية")
+    data["tg_test_error"]="" if data["tg_test"] else LAST_TG_ERROR
+    save_data(data)
     if syria_now().weekday()==5:
         print("السبت — تقرير اسبوعي فقط")
         data=check_weekly_report(data)
@@ -603,7 +612,7 @@ def job():
         data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="إشارة مُرسلة: "+r["st"]
     else:
-        data["last_reason"]="فشل إرسال Telegram"
+        data["last_reason"]="فشل إرسال Telegram: "+LAST_TG_ERROR
     data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
     save_data(data)
 
