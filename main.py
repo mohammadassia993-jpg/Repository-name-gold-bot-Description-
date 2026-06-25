@@ -38,7 +38,8 @@ def load_data():
         "week_signals":0,"week_wins":0,
         "week_trades":[],"last_report_date":None,
         "consecutive_losses":0,"breaker_until":None,
-        "last_check":None,"last_reason":None
+        "last_check":None,"last_reason":None,
+        "tp1_hit":False,"tp2_hit":False
     }
     try:
         if os.path.exists(DATA_FILE):
@@ -70,19 +71,18 @@ def check_last_signal(data, price):
     if not data["last_signal"] or not data["last_price"]:
         return data
     sl=data["last_sl"]; tp1=data["last_tp1"]
-    tp2=data["last_tp2"]; sig=data["last_signal"]
-    is_buy="BUY" in sig; result=None
-    if is_buy:
-        if price>=tp2:   result="WIN_BIG"
-        elif price>=tp1: result="WIN"
-        elif price<=sl:  result="LOSS"
-    else:
-        if price<=tp2:   result="WIN_BIG"
-        elif price<=tp1: result="WIN"
-        elif price>=sl:  result="LOSS"
-    if result:
+    tp2=data["last_tp2"]; tp3=data.get("last_tp3")
+    sig=data["last_signal"]; entry=data["last_price"]
+    is_buy="BUY" in sig
+    tp1_hit=data.get("tp1_hit",False)
+    tp2_hit=data.get("tp2_hit",False)
+
+    def pips(exit_price):
+        return round((exit_price-entry)/0.1,1) if is_buy else round((entry-exit_price)/0.1,1)
+
+    def close_trade(result, exit_price, label):
         data["total"]+=1; data["week_signals"]+=1
-        pips=round((price-data["last_price"])/0.1,1) if is_buy else round((data["last_price"]-price)/0.1,1)
+        p=pips(exit_price)
         if "WIN" in result:
             data["wins"]+=1; data["week_wins"]+=1
             data["consecutive_losses"]=0
@@ -101,23 +101,54 @@ def check_last_signal(data, price):
             if wr<50 and data["min_score"]<6: data["min_score"]+=1
             elif wr>70 and data["min_score"]>3: data["min_score"]-=1
         data.setdefault("week_trades",[]).append({
-            "sig":sig,"entry":data["last_price"],"exit":price,
-            "pips":pips,"result":result
+            "sig":sig,"entry":entry,"exit":exit_price,
+            "pips":p,"result":result
         })
-        send_telegram(em+" نتيجة الصفقة السابقة\n"
-            "النوع: "+sig+"\nالسعر: $"+str(round(price,2))+"\n"
-            "النقاط: "+("+" if pips>=0 else "")+str(pips)+"\n"
+        send_telegram(em+" "+label+"\n"
+            "النوع: "+sig+"\nالسعر: $"+str(round(exit_price,2))+"\n"
+            "النقاط: "+("+" if p>=0 else "")+str(p)+"\n"
             "الاجمالي: "+str(data["wins"])+"W/"
             +str(data["losses"])+"L | "+str(wr)+"%")
         data["last_signal"]=None
-    elif data.get("last_time"):
+        data["tp1_hit"]=False; data["tp2_hit"]=False
+
+    if tp3 is not None and ((is_buy and price>=tp3) or (not is_buy and price<=tp3)):
+        close_trade("WIN_BIG", price, "🏆 الهدف النهائي (TP3) تحقق")
+        return data
+
+    if not tp2_hit and ((is_buy and price>=tp2) or (not is_buy and price<=tp2)):
+        data["tp2_hit"]=True
+        send_telegram("🎯 الهدف الثاني (TP2) تحقق!\n"
+            "النوع: "+sig+" | السعر: $"+str(round(price,2))+"\n"
+            "وقف الخسارة انتقل الآن لـ TP1 ($"+str(tp1)+") لتأمين المكسب.\n"
+            "البوت يستمر بمتابعة الهدف النهائي TP3.")
+        return data
+
+    if not tp1_hit and ((is_buy and price>=tp1) or (not is_buy and price<=tp1)):
+        data["tp1_hit"]=True
+        send_telegram("🎯 الهدف الأول (TP1) تحقق!\n"
+            "النوع: "+sig+" | السعر: $"+str(round(price,2))+"\n"
+            "وقف الخسارة انتقل الآن لنقطة الدخول ($"+str(entry)+") لتأمين الصفقة.\n"
+            "البوت يستمر بمتابعة TP2.")
+        return data
+
+    stop = tp1 if tp2_hit else (entry if tp1_hit else sl)
+    if (is_buy and price<=stop) or (not is_buy and price>=stop):
+        result="WIN" if tp1_hit else "LOSS"
+        close_trade(result, price, "نتيجة الصفقة السابقة")
+        return data
+
+    if data.get("last_time"):
         try:
             opened=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
             if (datetime.now(timezone.utc)-opened).total_seconds()>6*3600:
-                send_telegram("⏱️ انتهت مهلة الصفقة السابقة بدون نتيجة حاسمة (6 ساعات)\n"
-                    "النوع: "+sig+" | الدخول: $"+str(data["last_price"])+"\n"
-                    "البوت جاهز الآن لإشارة جديدة.")
-                data["last_signal"]=None
+                if tp1_hit:
+                    close_trade("WIN", price, "⏱️ انتهت المهلة بعد تأمين الهدف الأول")
+                else:
+                    send_telegram("⏱️ انتهت مهلة الصفقة السابقة بدون نتيجة حاسمة (6 ساعات)\n"
+                        "النوع: "+sig+" | الدخول: $"+str(entry)+"\n"
+                        "البوت جاهز الآن لإشارة جديدة.")
+                    data["last_signal"]=None
         except: pass
     return data
 
@@ -615,6 +646,9 @@ def job():
         data["last_sl"]=smc["ob_sl"] if smc["ob_sl"] else r["lv"]["sl"]
         data["last_tp1"]=r["lv"]["tp1"]
         data["last_tp2"]=r["lv"]["tp2"]
+        data["last_tp3"]=r["lv"]["tp3"]
+        data["tp1_hit"]=False
+        data["tp2_hit"]=False
         data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="إشارة مُرسلة: "+r["st"]
     else:
