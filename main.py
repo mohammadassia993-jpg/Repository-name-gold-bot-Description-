@@ -110,6 +110,15 @@ def check_last_signal(data, price):
             "الاجمالي: "+str(data["wins"])+"W/"
             +str(data["losses"])+"L | "+str(wr)+"%")
         data["last_signal"]=None
+    elif data.get("last_time"):
+        try:
+            opened=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
+            if (datetime.now(timezone.utc)-opened).total_seconds()>6*3600:
+                send_telegram("⏱️ انتهت مهلة الصفقة السابقة بدون نتيجة حاسمة (6 ساعات)\n"
+                    "النوع: "+sig+" | الدخول: $"+str(data["last_price"])+"\n"
+                    "البوت جاهز الآن لإشارة جديدة.")
+                data["last_signal"]=None
+        except: pass
     return data
 
 def check_weekly_report(data):
