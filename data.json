@@ -1,5 +1,5 @@
 {
-  "last_signal": "BUY_W",
+  "last_signal": null,
   "last_price": 4005.6,
   "last_sl": 3992.58,
   "last_tp1": 4031.64,
@@ -52,8 +52,8 @@
   "last_report_date": "2026-06-20",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-06-25 19:45",
-  "last_reason": "نفس الاشارة السابقة (BUY_W)",
+  "last_check": "2026-06-26 05:00",
+  "last_reason": "لا اشارة (Score=-1/3)",
   "tp1_hit": true,
   "tp2_hit": false,
   "last_tp3": 4083.72,
