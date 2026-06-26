@@ -52,10 +52,12 @@
   "last_report_date": "2026-06-20",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-06-26 06:30",
+  "last_check": "2026-06-26 06:33",
   "last_reason": "نفس الاشارة السابقة (SELL_W)",
   "tp1_hit": false,
   "tp2_hit": false,
+  "trade_history": [],
+  "profit_factor": null,
   "last_tp3": 3953.2,
   "tg_test": true,
   "tg_test_error": ""
