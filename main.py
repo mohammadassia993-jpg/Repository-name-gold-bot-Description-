@@ -55,7 +55,8 @@ def load_data():
         "week_trades":[],"last_report_date":None,
         "consecutive_losses":0,"breaker_until":None,
         "last_check":None,"last_reason":None,
-        "tp1_hit":False,"tp2_hit":False
+        "tp1_hit":False,"tp2_hit":False,
+        "trade_history":[],"profit_factor":None
     }
     try:
         if os.path.exists(DATA_FILE):
@@ -113,9 +114,17 @@ def check_last_signal(data, price):
                     "4 خسائر متتالية — إيقاف الإشارات 24 ساعة للمراجعة\n"
                     "سيُستأنف العمل تلقائياً بعد: "+data["breaker_until"]+" UTC")
         wr=round(data["wins"]/data["total"]*100) if data["total"]>0 else 0
-        if data["total"]>=10:
-            if wr<50 and data["min_score"]<6: data["min_score"]+=1
-            elif wr>70 and data["min_score"]>3: data["min_score"]-=1
+        hist=data.setdefault("trade_history",[])
+        hist.append(p)
+        data["trade_history"]=hist[-100:]
+        hist=data["trade_history"]
+        if len(hist)>=100:
+            gains=sum(x for x in hist if x>0)
+            losses=abs(sum(x for x in hist if x<0))
+            pf=round(gains/losses,2) if losses>0 else 99.0
+            data["profit_factor"]=pf
+            if pf<1.2 and data["min_score"]<6: data["min_score"]+=1
+            elif pf>2.0 and data["min_score"]>3: data["min_score"]-=1
         data.setdefault("week_trades",[]).append({
             "sig":sig,"entry":entry,"exit":exit_price,
             "pips":p,"result":result
@@ -188,8 +197,12 @@ def check_weekly_report(data):
             lines.append(str(i)+") "+tr["sig"]+" "+emj+" "+sgn+str(tr["pips"])+" نقطة\n")
     else:
         lines.append("لا صفقات هذا الأسبوع\n")
+    hist_n=len(data.get("trade_history",[]))
+    pf=data.get("profit_factor")
+    pf_line="عامل الربح (100 صفقة): "+str(pf) if pf is not None else "عامل الربح: قيد التجميع ("+str(hist_n)+"/100)"
     lines.append("\nالإجمالي: "+str(t)+" | رابحة: "+str(w)+" | خاسرة: "+str(l)
-                 +"\nنسبة النجاح: "+str(wr)+"%\nالحد التكيفي: "+str(data["min_score"])+"/8")
+                 +"\nنسبة النجاح: "+str(wr)+"%\n"+pf_line
+                 +"\nالحد التكيفي: "+str(data["min_score"])+"/8")
     send_telegram("".join(lines))
     data["week_trades"]=[]
     data["week_signals"]=0; data["week_wins"]=0
