@@ -8,6 +8,22 @@ TWELVE_API_KEY = os.environ.get("TWELVE_API_KEY", "")
 DATA_FILE    = "data.json"
 SYRIA_OPEN   = 8
 SYRIA_CLOSE  = 23
+EQUITY = 200  # رأس المال الحالي (دولار) — حدّث هذا الرقم عند تغيّر رأس المال
+
+def calc_lot(score, entry, sl):
+    s=abs(score)
+    if s>=7:   risk_pct,label="1.5","كبيرة"
+    elif s>=5: risk_pct,label="1.0","متوسطة"
+    else:      risk_pct,label="0.5","صغيرة"
+    risk_pct=float(risk_pct)
+    sl_dist=abs(entry-sl)
+    if sl_dist<=0: return 0.01,label,risk_pct,0.0
+    risk_amount=EQUITY*risk_pct/100
+    ideal_lot=risk_amount/(sl_dist*100)
+    lot=int(ideal_lot*100)/100
+    if lot<0.01: lot=0.01
+    actual_risk_pct=round((lot*100*sl_dist/EQUITY)*100,1)
+    return lot,label,risk_pct,actual_risk_pct
 
 # ── نسب SL/TP المحسّنة (R:R أفضل) ──
 ATR_SL  = 1.0   # أضيق من قبل (كان 1.5)
@@ -534,6 +550,8 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
 
     # نسبة R:R
     rr=round(abs(lv["tp1"]-lv["entry"])/abs(lv["sl"]-lv["entry"]),1) if lv["sl"]!=lv["entry"] else 0
+    lot,size_label,target_risk,actual_risk=calc_lot(r["score"],lv["entry"],sl_final)
+    risk_warn="⚠️ " if actual_risk>target_risk*1.5 else ""
 
     return (
         r["emoji"]+" الذهب XAUUSD M15 — إشارة\n"
@@ -558,6 +576,8 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
         "TP2: $"+str(lv["tp2"])+"\n"
         "TP3: $"+str(lv["tp3"])+"\n"
         "🎯 هدف هيكلي (20 شمعة): $"+str(lv["tp_structure"])+"\n\n"
+        "💰 حجم الصفقة المقترح: "+size_label+" — "+str(lot)+" لوت\n"
+        +risk_warn+"الخطر الفعلي: "+str(actual_risk)+"% من $"+str(EQUITY)+" (المستهدف "+str(target_risk)+"%)\n\n"
         "⚠️ استخدم سعر MT5 للدخول\n"
         "الحد: "+str(min_sc)+"/8\n"
         "الوقت: "+now
