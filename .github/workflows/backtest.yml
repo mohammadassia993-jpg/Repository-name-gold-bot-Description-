@@ -1,6 +1,8 @@
 name: Backtest
 on:
   workflow_dispatch:
+permissions:
+  contents: write
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -15,11 +17,27 @@ jobs:
         env:
           TWELVE_API_KEY: ${{ secrets.TWELVE_API_KEY }}
         run: python backtest.py
-      - name: Save results
+      - name: Save results via API
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add backtest_result.json
-          git commit -m "Backtest results [skip ci]" || true
-          git pull --rebase origin main
-          git push
+          python3 -c "
+          import base64, json, os, urllib.request
+          with open('backtest_result.json','rb') as f:
+              content = base64.b64encode(f.read()).decode()
+          token = os.environ['GH_TOKEN']
+          url = 'https://api.github.com/repos/${{ github.repository }}/contents/backtest_result.json'
+          req = urllib.request.Request(url, headers={'Authorization': 'token '+token, 'Accept':'application/vnd.github+json'})
+          sha = None
+          try:
+              with urllib.request.urlopen(req) as resp:
+                  sha = json.load(resp)['sha']
+          except Exception as e:
+              print('no existing file:', e)
+          data = {'message':'Backtest results [skip ci]','content':content,'branch':'main'}
+          if sha: data['sha']=sha
+          req2 = urllib.request.Request(url, method='PUT', data=json.dumps(data).encode(),
+              headers={'Authorization': 'token '+token, 'Accept':'application/vnd.github+json','Content-Type':'application/json'})
+          with urllib.request.urlopen(req2) as resp2:
+              print('status:', resp2.status)
+          "
