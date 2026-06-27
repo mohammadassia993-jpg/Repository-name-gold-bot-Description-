@@ -1,0 +1,25 @@
+name: Backtest
+on:
+  workflow_dispatch:
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      - run: pip install -r requirements.txt
+      - name: Run backtest
+        env:
+          TWELVE_API_KEY: ${{ secrets.TWELVE_API_KEY }}
+        run: python backtest.py
+      - name: Save results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add backtest_result.json
+          git commit -m "Backtest results [skip ci]" || true
+          git pull --rebase origin main
+          git push
