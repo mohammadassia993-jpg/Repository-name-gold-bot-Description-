@@ -159,7 +159,7 @@ def check_last_signal(data, price):
 
     stop = tp1 if tp2_hit else (entry if tp1_hit else sl)
     if (is_buy and price<=stop) or (not is_buy and price>=stop):
-        result="WIN" if tp1_hit else "LOSS"
+        result="WIN" if pips(price)>=0 else "LOSS"
         close_trade(result, price, "نتيجة الصفقة السابقة")
         return data
 
@@ -167,8 +167,10 @@ def check_last_signal(data, price):
         try:
             opened=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
             if (datetime.now(timezone.utc)-opened).total_seconds()>6*3600:
-                if tp1_hit:
+                if tp1_hit and pips(price)>=0:
                     close_trade("WIN", price, "⏱️ انتهت المهلة بعد تأمين الهدف الأول")
+                elif tp1_hit:
+                    close_trade("LOSS", price, "⏱️ انتهت المهلة (تراجع السعر تحت نقطة الدخول)")
                 else:
                     send_telegram("⏱️ انتهت مهلة الصفقة السابقة بدون نتيجة حاسمة (6 ساعات)\n"
                         "النوع: "+sig+" | الدخول: $"+str(entry)+"\n"
