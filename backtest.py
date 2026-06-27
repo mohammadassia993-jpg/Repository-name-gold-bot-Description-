@@ -96,8 +96,10 @@ def report(trades):
     }
 
 if __name__=="__main__":
-    print("جلب البيانات التاريخية...")
-    vals = fetch_chunk(outputsize=5000)
+    end_date = sys.argv[1] if len(sys.argv)>1 else None
+    out_name = sys.argv[2] if len(sys.argv)>2 else "backtest_result.json"
+    print("جلب البيانات التاريخية...", "end_date=", end_date)
+    vals = fetch_chunk(end_date=end_date, outputsize=5000)
     if not vals:
         print("فشل الجلب — توقف"); sys.exit(1)
     closes,highs,lows,opens,times = to_series(vals)
@@ -105,7 +107,7 @@ if __name__=="__main__":
     trades = simulate(closes,highs,lows,opens,min_score=3)
     result = report(trades)
     print(json.dumps(result, ensure_ascii=False, indent=2))
-    with open("backtest_result.json","w") as f:
+    with open(out_name,"w") as f:
         json.dump({"period_start":times[0],"period_end":times[-1],
                    "candles":len(closes),"result":result,
                    "trades":trades}, f, ensure_ascii=False, indent=2)
