@@ -96,18 +96,22 @@ def report(trades):
     }
 
 if __name__=="__main__":
-    end_date = sys.argv[1] if len(sys.argv)>1 else None
-    out_name = sys.argv[2] if len(sys.argv)>2 else "backtest_result.json"
-    print("جلب البيانات التاريخية...", "end_date=", end_date)
-    vals = fetch_chunk(end_date=end_date, outputsize=5000)
-    if not vals:
-        print("فشل الجلب — توقف"); sys.exit(1)
-    closes,highs,lows,opens,times = to_series(vals)
-    print(f"عدد الشموع: {len(closes)} | من {times[0]} إلى {times[-1]}")
-    trades = simulate(closes,highs,lows,opens,min_score=3)
-    result = report(trades)
-    print(json.dumps(result, ensure_ascii=False, indent=2))
-    with open(out_name,"w") as f:
-        json.dump({"period_start":times[0],"period_end":times[-1],
-                   "candles":len(closes),"result":result,
-                   "trades":trades}, f, ensure_ascii=False, indent=2)
+    periods = [(None,"الفترة الأحدث (آخر ~52 يوم)"),
+               ("2025-09-15 00:00:00","فترة أبعد (~عام مضى)")]
+    all_results={}
+    for end_date, label in periods:
+        print("=== ",label," ===")
+        vals = fetch_chunk(end_date=end_date, outputsize=5000)
+        if not vals:
+            all_results[label]={"error":"فشل الجلب"}
+            continue
+        closes,highs,lows,opens,times = to_series(vals)
+        print(f"عدد الشموع: {len(closes)} | من {times[0]} إلى {times[-1]}")
+        trades = simulate(closes,highs,lows,opens,min_score=3)
+        result = report(trades)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        all_results[label]={"period_start":times[0],"period_end":times[-1],
+                             "candles":len(closes),"result":result}
+        time.sleep(2)
+    with open("backtest_result.json","w") as f:
+        json.dump(all_results, f, ensure_ascii=False, indent=2)
