@@ -1,32 +1,32 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-07 13:15:00",
-    "period_end": "2026-06-28 15:00:00",
+    "period_start": "2026-05-07 13:30:00",
+    "period_end": "2026-06-28 15:15:00",
     "candles": 5000,
     "configs": {
       "baseline": {
-        "total": 141,
+        "total": 138,
         "wins": 37,
-        "losses": 104,
-        "win_rate": 26.2,
-        "profit_factor": 1.05,
-        "net_pips": 644.0,
-        "avg_pips_per_trade": 4.6,
+        "losses": 101,
+        "win_rate": 26.8,
+        "profit_factor": 1.12,
+        "net_pips": 1508.1,
+        "avg_pips_per_trade": 10.9,
         "by_type": {
           "SELL_S": {
-            "n": 9,
-            "w": 2,
-            "pips": -535.8000000000001
-          },
-          "BUY_W": {
-            "n": 53,
-            "w": 11,
-            "pips": -2221.0
+            "n": 7,
+            "w": 0,
+            "pips": -1107.5
           },
           "SELL_W": {
-            "n": 76,
-            "w": 22,
-            "pips": 2566.3
+            "n": 77,
+            "w": 24,
+            "pips": 3292.5
+          },
+          "BUY_W": {
+            "n": 51,
+            "w": 11,
+            "pips": -1511.4000000000003
           },
           "BUY_S": {
             "n": 3,
@@ -36,28 +36,28 @@
         }
       },
       "محسّن": {
-        "total": 136,
+        "total": 135,
         "wins": 32,
-        "losses": 104,
-        "win_rate": 23.5,
-        "profit_factor": 0.98,
-        "net_pips": -256.8,
-        "avg_pips_per_trade": -1.9,
+        "losses": 103,
+        "win_rate": 23.7,
+        "profit_factor": 1.03,
+        "net_pips": 332.9,
+        "avg_pips_per_trade": 2.5,
         "by_type": {
           "SELL_S": {
-            "n": 9,
-            "w": 2,
-            "pips": -651.5
-          },
-          "BUY_W": {
-            "n": 54,
-            "w": 10,
-            "pips": -1643.8000000000002
+            "n": 8,
+            "w": 1,
+            "pips": -710.9
           },
           "SELL_W": {
-            "n": 70,
-            "w": 19,
-            "pips": 2076.4000000000005
+            "n": 71,
+            "w": 20,
+            "pips": 2231.2999999999997
+          },
+          "BUY_W": {
+            "n": 53,
+            "w": 10,
+            "pips": -1149.6000000000004
           },
           "BUY_S": {
             "n": 3,
