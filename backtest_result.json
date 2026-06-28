@@ -1,68 +1,58 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-07 13:30:00",
-    "period_end": "2026-06-28 15:15:00",
+    "period_start": "2026-05-07 20:00:00",
+    "period_end": "2026-06-28 21:45:00",
     "candles": 5000,
     "configs": {
-      "baseline": {
-        "total": 138,
+      "60 شمعة (الوضع الحي الحالي، EMA200 معطّل)": {
+        "total": 144,
+        "wins": 42,
+        "losses": 102,
+        "win_rate": 29.2,
+        "profit_factor": 1.28,
+        "net_pips": 3555.9,
+        "avg_pips_per_trade": 24.7,
+        "by_type": {
+          "BUY_W": {
+            "n": 57,
+            "w": 12,
+            "pips": -1249.1999999999998
+          },
+          "SELL_W": {
+            "n": 87,
+            "w": 30,
+            "pips": 4805.099999999997
+          }
+        }
+      },
+      "250 شمعة (إصلاح EMA200 فقط)": {
+        "total": 141,
         "wins": 37,
-        "losses": 101,
-        "win_rate": 26.8,
-        "profit_factor": 1.12,
-        "net_pips": 1508.1,
-        "avg_pips_per_trade": 10.9,
+        "losses": 104,
+        "win_rate": 26.2,
+        "profit_factor": 1.06,
+        "net_pips": 727.8,
+        "avg_pips_per_trade": 5.2,
         "by_type": {
           "SELL_S": {
-            "n": 7,
-            "w": 0,
-            "pips": -1107.5
+            "n": 8,
+            "w": 2,
+            "pips": -459.20000000000005
+          },
+          "BUY_W": {
+            "n": 53,
+            "w": 11,
+            "pips": -2136.8
           },
           "SELL_W": {
             "n": 77,
-            "w": 24,
-            "pips": 3292.5
-          },
-          "BUY_W": {
-            "n": 51,
-            "w": 11,
-            "pips": -1511.4000000000003
+            "w": 22,
+            "pips": 2489.300000000001
           },
           "BUY_S": {
             "n": 3,
             "w": 2,
             "pips": 834.4999999999999
-          }
-        }
-      },
-      "محسّن": {
-        "total": 135,
-        "wins": 32,
-        "losses": 103,
-        "win_rate": 23.7,
-        "profit_factor": 1.03,
-        "net_pips": 332.9,
-        "avg_pips_per_trade": 2.5,
-        "by_type": {
-          "SELL_S": {
-            "n": 8,
-            "w": 1,
-            "pips": -710.9
-          },
-          "SELL_W": {
-            "n": 71,
-            "w": 20,
-            "pips": 2231.2999999999997
-          },
-          "BUY_W": {
-            "n": 53,
-            "w": 10,
-            "pips": -1149.6000000000004
-          },
-          "BUY_S": {
-            "n": 3,
-            "w": 1,
-            "pips": -37.9
           }
         }
       }
@@ -73,7 +63,28 @@
     "period_end": "2025-09-13 23:45:00",
     "candles": 5000,
     "configs": {
-      "baseline": {
+      "60 شمعة (الوضع الحي الحالي، EMA200 معطّل)": {
+        "total": 182,
+        "wins": 39,
+        "losses": 143,
+        "win_rate": 21.4,
+        "profit_factor": 0.96,
+        "net_pips": -228.4,
+        "avg_pips_per_trade": -1.3,
+        "by_type": {
+          "SELL_W": {
+            "n": 79,
+            "w": 18,
+            "pips": -27.09999999999978
+          },
+          "BUY_W": {
+            "n": 103,
+            "w": 21,
+            "pips": -201.30000000000013
+          }
+        }
+      },
+      "250 شمعة (إصلاح EMA200 فقط)": {
         "total": 169,
         "wins": 35,
         "losses": 134,
@@ -101,37 +112,6 @@
             "n": 1,
             "w": 1,
             "pips": 52.6
-          }
-        }
-      },
-      "محسّن": {
-        "total": 169,
-        "wins": 37,
-        "losses": 132,
-        "win_rate": 21.9,
-        "profit_factor": 0.88,
-        "net_pips": -690.6,
-        "avg_pips_per_trade": -4.1,
-        "by_type": {
-          "SELL_W": {
-            "n": 59,
-            "w": 13,
-            "pips": 8.600000000000122
-          },
-          "SELL_S": {
-            "n": 3,
-            "w": 1,
-            "pips": -150.5
-          },
-          "BUY_W": {
-            "n": 103,
-            "w": 23,
-            "pips": -443.99999999999983
-          },
-          "BUY_S": {
-            "n": 4,
-            "w": 0,
-            "pips": -104.7
           }
         }
       }
