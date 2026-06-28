@@ -42,7 +42,7 @@ def trend_from_series(closes, size=100):
     else: return "NEUTRAL"
 
 def simulate(closes,highs,lows,opens,min_score=3,
-             use_smc_gate=False, use_dynamic_d1=False, smc_min=2):
+             use_smc_gate=False, use_dynamic_d1=False, smc_min=2, window=250):
     trades=[]
     open_trade=None
     n=len(closes)
@@ -50,9 +50,9 @@ def simulate(closes,highs,lows,opens,min_score=3,
     h1_chunks_c=build_resampled(closes,4)
     d1_chunks_c=build_resampled(closes,96)
 
-    for i in range(WINDOW, n):
-        cw=closes[i-WINDOW:i+1]; hw=highs[i-WINDOW:i+1]
-        lw=lows[i-WINDOW:i+1];  ow=opens[i-WINDOW:i+1]
+    for i in range(window, n):
+        cw=closes[i-window:i+1]; hw=highs[i-window:i+1]
+        lw=lows[i-window:i+1];  ow=opens[i-window:i+1]
         price=cw[-1]
 
         if open_trade:
@@ -148,8 +148,8 @@ def report(trades):
 if __name__=="__main__":
     periods=[(None,"الأحدث"), ("2025-09-15 00:00:00","أبعد (~عام)")]
     configs=[
-        ("baseline", dict(use_smc_gate=False, use_dynamic_d1=False)),
-        ("محسّن", dict(use_smc_gate=True, use_dynamic_d1=True)),
+        ("60 شمعة (الوضع الحي الحالي، EMA200 معطّل)", dict(use_smc_gate=False, use_dynamic_d1=False, window=60)),
+        ("250 شمعة (إصلاح EMA200 فقط)", dict(use_smc_gate=False, use_dynamic_d1=False, window=250)),
     ]
     all_results={}
     for end_date,plabel in periods:
