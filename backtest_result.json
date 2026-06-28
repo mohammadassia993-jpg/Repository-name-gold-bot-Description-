@@ -1,52 +1,138 @@
 {
-  "الفترة الأحدث (آخر ~52 يوم)": {
-    "period_start": "2026-05-06 14:00:00",
-    "period_end": "2026-06-27 15:45:00",
+  "الأحدث": {
+    "period_start": "2026-05-07 13:15:00",
+    "period_end": "2026-06-28 15:00:00",
     "candles": 5000,
-    "result": {
-      "total": 163,
-      "wins": 45,
-      "losses": 118,
-      "win_rate": 27.6,
-      "profit_factor": 1.16,
-      "net_pips": 2363.7,
-      "avg_pips_per_trade": 14.5,
-      "by_type": {
-        "BUY_W": {
-          "n": 71,
-          "w": 17,
-          "pips": -793.7999999999995
-        },
-        "SELL_W": {
-          "n": 92,
-          "w": 28,
-          "pips": 3157.499999999999
+    "configs": {
+      "baseline": {
+        "total": 141,
+        "wins": 37,
+        "losses": 104,
+        "win_rate": 26.2,
+        "profit_factor": 1.05,
+        "net_pips": 644.0,
+        "avg_pips_per_trade": 4.6,
+        "by_type": {
+          "SELL_S": {
+            "n": 9,
+            "w": 2,
+            "pips": -535.8000000000001
+          },
+          "BUY_W": {
+            "n": 53,
+            "w": 11,
+            "pips": -2221.0
+          },
+          "SELL_W": {
+            "n": 76,
+            "w": 22,
+            "pips": 2566.3
+          },
+          "BUY_S": {
+            "n": 3,
+            "w": 2,
+            "pips": 834.4999999999999
+          }
+        }
+      },
+      "محسّن": {
+        "total": 136,
+        "wins": 32,
+        "losses": 104,
+        "win_rate": 23.5,
+        "profit_factor": 0.98,
+        "net_pips": -256.8,
+        "avg_pips_per_trade": -1.9,
+        "by_type": {
+          "SELL_S": {
+            "n": 9,
+            "w": 2,
+            "pips": -651.5
+          },
+          "BUY_W": {
+            "n": 54,
+            "w": 10,
+            "pips": -1643.8000000000002
+          },
+          "SELL_W": {
+            "n": 70,
+            "w": 19,
+            "pips": 2076.4000000000005
+          },
+          "BUY_S": {
+            "n": 3,
+            "w": 1,
+            "pips": -37.9
+          }
         }
       }
     }
   },
-  "فترة أبعد (~عام مضى)": {
+  "أبعد (~عام)": {
     "period_start": "2025-07-12 09:30:00",
     "period_end": "2025-09-13 23:45:00",
     "candles": 5000,
-    "result": {
-      "total": 198,
-      "wins": 38,
-      "losses": 160,
-      "win_rate": 19.2,
-      "profit_factor": 0.93,
-      "net_pips": -511.4,
-      "avg_pips_per_trade": -2.6,
-      "by_type": {
-        "SELL_W": {
-          "n": 92,
-          "w": 18,
-          "pips": -940.0000000000001
-        },
-        "BUY_W": {
-          "n": 106,
-          "w": 20,
-          "pips": 428.6000000000002
+    "configs": {
+      "baseline": {
+        "total": 169,
+        "wins": 35,
+        "losses": 134,
+        "win_rate": 20.7,
+        "profit_factor": 0.84,
+        "net_pips": -940.8,
+        "avg_pips_per_trade": -5.6,
+        "by_type": {
+          "SELL_W": {
+            "n": 69,
+            "w": 13,
+            "pips": -454.10000000000025
+          },
+          "BUY_W": {
+            "n": 96,
+            "w": 21,
+            "pips": -466.3999999999999
+          },
+          "BUY_S": {
+            "n": 3,
+            "w": 0,
+            "pips": -72.9
+          },
+          "SELL_S": {
+            "n": 1,
+            "w": 1,
+            "pips": 52.6
+          }
+        }
+      },
+      "محسّن": {
+        "total": 169,
+        "wins": 37,
+        "losses": 132,
+        "win_rate": 21.9,
+        "profit_factor": 0.88,
+        "net_pips": -690.6,
+        "avg_pips_per_trade": -4.1,
+        "by_type": {
+          "SELL_W": {
+            "n": 59,
+            "w": 13,
+            "pips": 8.600000000000122
+          },
+          "SELL_S": {
+            "n": 3,
+            "w": 1,
+            "pips": -150.5
+          },
+          "BUY_W": {
+            "n": 103,
+            "w": 23,
+            "pips": -443.99999999999983
+          },
+          "BUY_S": {
+            "n": 4,
+            "w": 0,
+            "pips": -104.7
+          }
         }
       }
     }
