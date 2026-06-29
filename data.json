@@ -1,5 +1,5 @@
 {
-  "last_signal": "BUY_W",
+  "last_signal": null,
   "last_price": 4069.32,
   "last_sl": 4041.99,
   "last_tp1": 4081.64,
@@ -16,8 +16,8 @@
   "last_report_date": "2026-06-27",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-06-26 19:45",
-  "last_reason": "نفس الاشارة السابقة (BUY_W)",
+  "last_check": "2026-06-29 05:00",
+  "last_reason": "مرفوضة (SELL_W): دعم",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
