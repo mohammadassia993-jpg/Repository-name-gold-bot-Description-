@@ -31,7 +31,7 @@
   "last_report_date": "2026-06-27",
   "consecutive_losses": 1,
   "breaker_until": null,
-  "last_check": "2026-06-29 15:15",
+  "last_check": "2026-06-29 15:30",
   "last_reason": "نفس الاشارة السابقة (SELL_W)",
   "tp1_hit": true,
   "tp2_hit": false,
