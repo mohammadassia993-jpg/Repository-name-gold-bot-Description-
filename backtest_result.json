@@ -1,58 +1,69 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-07 20:00:00",
-    "period_end": "2026-06-28 21:45:00",
+    "period_start": "2026-05-09 14:45:00",
+    "period_end": "2026-06-30 16:30:00",
     "candles": 5000,
     "configs": {
-      "60 شمعة (الوضع الحي الحالي، EMA200 معطّل)": {
-        "total": 144,
-        "wins": 42,
-        "losses": 102,
-        "win_rate": 29.2,
-        "profit_factor": 1.28,
-        "net_pips": 3555.9,
-        "avg_pips_per_trade": 24.7,
+      "SL=1.0 (الحالي)": {
+        "total": 145,
+        "wins": 41,
+        "losses": 104,
+        "win_rate": 28.3,
+        "profit_factor": 1.19,
+        "net_pips": 2596.1,
+        "avg_pips_per_trade": 17.9,
         "by_type": {
           "BUY_W": {
-            "n": 57,
+            "n": 58,
             "w": 12,
-            "pips": -1249.1999999999998
+            "pips": -1702.1999999999998
           },
           "SELL_W": {
             "n": 87,
-            "w": 30,
-            "pips": 4805.099999999997
+            "w": 29,
+            "pips": 4298.299999999999
           }
         }
       },
-      "250 شمعة (إصلاح EMA200 فقط)": {
-        "total": 141,
-        "wins": 37,
-        "losses": 104,
-        "win_rate": 26.2,
-        "profit_factor": 1.06,
-        "net_pips": 727.8,
-        "avg_pips_per_trade": 5.2,
+      "SL=1.5 (مقترح)": {
+        "total": 113,
+        "wins": 35,
+        "losses": 78,
+        "win_rate": 31.0,
+        "profit_factor": 1.23,
+        "net_pips": 2879.9,
+        "avg_pips_per_trade": 25.5,
         "by_type": {
-          "SELL_S": {
-            "n": 8,
-            "w": 2,
-            "pips": -459.20000000000005
-          },
           "BUY_W": {
-            "n": 53,
-            "w": 11,
-            "pips": -2136.8
+            "n": 43,
+            "w": 8,
+            "pips": -1482.0
           },
           "SELL_W": {
-            "n": 77,
-            "w": 22,
-            "pips": 2489.300000000001
+            "n": 70,
+            "w": 27,
+            "pips": 4361.9
+          }
+        }
+      },
+      "SL=2.0 (للمقارنة)": {
+        "total": 97,
+        "wins": 35,
+        "losses": 62,
+        "win_rate": 36.1,
+        "profit_factor": 1.12,
+        "net_pips": 1449.0,
+        "avg_pips_per_trade": 14.9,
+        "by_type": {
+          "BUY_W": {
+            "n": 37,
+            "w": 8,
+            "pips": -2045.1000000000008
           },
-          "BUY_S": {
-            "n": 3,
-            "w": 2,
-            "pips": 834.4999999999999
+          "SELL_W": {
+            "n": 60,
+            "w": 27,
+            "pips": 3494.100000000001
           }
         }
       }
@@ -63,7 +74,7 @@
     "period_end": "2025-09-13 23:45:00",
     "candles": 5000,
     "configs": {
-      "60 شمعة (الوضع الحي الحالي، EMA200 معطّل)": {
+      "SL=1.0 (الحالي)": {
         "total": 182,
         "wins": 39,
         "losses": 143,
@@ -84,34 +95,45 @@
           }
         }
       },
-      "250 شمعة (إصلاح EMA200 فقط)": {
-        "total": 169,
-        "wins": 35,
-        "losses": 134,
-        "win_rate": 20.7,
-        "profit_factor": 0.84,
-        "net_pips": -940.8,
-        "avg_pips_per_trade": -5.6,
+      "SL=1.5 (مقترح)": {
+        "total": 141,
+        "wins": 41,
+        "losses": 100,
+        "win_rate": 29.1,
+        "profit_factor": 0.98,
+        "net_pips": -112.5,
+        "avg_pips_per_trade": -0.8,
         "by_type": {
           "SELL_W": {
-            "n": 69,
-            "w": 13,
-            "pips": -454.10000000000025
+            "n": 65,
+            "w": 20,
+            "pips": -270.1000000000001
           },
           "BUY_W": {
-            "n": 96,
+            "n": 76,
             "w": 21,
-            "pips": -466.3999999999999
+            "pips": 157.60000000000025
+          }
+        }
+      },
+      "SL=2.0 (للمقارنة)": {
+        "total": 114,
+        "wins": 34,
+        "losses": 80,
+        "win_rate": 29.8,
+        "profit_factor": 0.93,
+        "net_pips": -429.2,
+        "avg_pips_per_trade": -3.8,
+        "by_type": {
+          "SELL_W": {
+            "n": 53,
+            "w": 16,
+            "pips": -516.8
           },
-          "BUY_S": {
-            "n": 3,
-            "w": 0,
-            "pips": -72.9
-          },
-          "SELL_S": {
-            "n": 1,
-            "w": 1,
-            "pips": 52.6
+          "BUY_W": {
+            "n": 61,
+            "w": 18,
+            "pips": 87.60000000000001
           }
         }
       }
