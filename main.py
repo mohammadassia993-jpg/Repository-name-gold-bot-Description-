@@ -26,7 +26,7 @@ def calc_lot(score, entry, sl):
     return lot,label,risk_pct,actual_risk_pct
 
 # ── نسب SL/TP المحسّنة (R:R أفضل) ──
-ATR_SL  = 1.0   # أضيق من قبل (كان 1.5)
+ATR_SL  = 1.5   # وُسّع من 1.0 بعد اختبار رجعي أثبت تحسناً ثابتاً (PF وWR) في فترتين منفصلتين
 ATR_TP1 = 2.0   # 1:2  (كان 1.5)
 ATR_TP2 = 3.5   # 1:3.5 (كان 3.0)
 ATR_TP3 = 6.0   # 1:6   (كان 5.0)
