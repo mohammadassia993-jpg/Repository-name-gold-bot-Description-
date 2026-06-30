@@ -1,47 +1,26 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-09 15:15:00",
-    "period_end": "2026-06-30 17:00:00",
+    "period_start": "2026-05-09 20:00:00",
+    "period_end": "2026-06-30 21:45:00",
     "candles": 5000,
-    "components": {
-      "EMA20/50 فقط": {
-        "total": 144,
-        "wins": 45,
-        "losses": 99,
-        "win_rate": 31.2,
-        "profit_factor": 1.01,
-        "net_pips": 198.7,
-        "avg_pips_per_trade": 1.4
+    "configs": {
+      "الحالي (EMA2 RSI2 MACD1 WT2)": {
+        "total": 123,
+        "wins": 40,
+        "losses": 83,
+        "win_rate": 32.5,
+        "profit_factor": 1.3,
+        "net_pips": 4096.9,
+        "avg_pips_per_trade": 33.3
       },
-      "RSI فقط": {
-        "total": 128,
-        "wins": 35,
-        "losses": 93,
-        "win_rate": 27.3,
-        "profit_factor": 0.92,
-        "net_pips": -1311.2,
-        "avg_pips_per_trade": -10.2
-      },
-      "MACD فقط": {
-        "total": 126,
-        "wins": 50,
-        "losses": 76,
-        "win_rate": 39.7,
-        "profit_factor": 1.5,
-        "net_pips": 6335.9,
-        "avg_pips_per_trade": 50.3
-      },
-      "WaveTrend فقط": {
-        "total": 0
-      },
-      "SMC فقط": {
-        "total": 156,
-        "wins": 41,
-        "losses": 115,
-        "win_rate": 26.3,
-        "profit_factor": 0.93,
-        "net_pips": -1522.6,
-        "avg_pips_per_trade": -9.8
+      "MACD مُرجَّح (EMA1 RSI1 MACD3 WT0)": {
+        "total": 133,
+        "wins": 51,
+        "losses": 82,
+        "win_rate": 38.3,
+        "profit_factor": 1.47,
+        "net_pips": 6219.6,
+        "avg_pips_per_trade": 46.8
       }
     }
   },
@@ -49,45 +28,24 @@
     "period_start": "2025-07-12 09:30:00",
     "period_end": "2025-09-13 23:45:00",
     "candles": 5000,
-    "components": {
-      "EMA20/50 فقط": {
-        "total": 182,
-        "wins": 49,
-        "losses": 133,
-        "win_rate": 26.9,
-        "profit_factor": 0.89,
-        "net_pips": -951.9,
-        "avg_pips_per_trade": -5.2
+    "configs": {
+      "الحالي (EMA2 RSI2 MACD1 WT2)": {
+        "total": 154,
+        "wins": 40,
+        "losses": 114,
+        "win_rate": 26.0,
+        "profit_factor": 0.92,
+        "net_pips": -506.6,
+        "avg_pips_per_trade": -3.3
       },
-      "RSI فقط": {
-        "total": 153,
-        "wins": 45,
-        "losses": 108,
-        "win_rate": 29.4,
-        "profit_factor": 1.03,
-        "net_pips": 211.2,
-        "avg_pips_per_trade": 1.4
-      },
-      "MACD فقط": {
-        "total": 186,
-        "wins": 49,
-        "losses": 137,
-        "win_rate": 26.3,
-        "profit_factor": 1.02,
-        "net_pips": 143.9,
-        "avg_pips_per_trade": 0.8
-      },
-      "WaveTrend فقط": {
-        "total": 0
-      },
-      "SMC فقط": {
-        "total": 217,
-        "wins": 49,
-        "losses": 168,
-        "win_rate": 22.6,
-        "profit_factor": 0.82,
-        "net_pips": -1891.2,
-        "avg_pips_per_trade": -8.7
+      "MACD مُرجَّح (EMA1 RSI1 MACD3 WT0)": {
+        "total": 195,
+        "wins": 50,
+        "losses": 145,
+        "win_rate": 25.6,
+        "profit_factor": 0.88,
+        "net_pips": -1163.2,
+        "avg_pips_per_trade": -6.0
       }
     }
   }
