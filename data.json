@@ -59,9 +59,9 @@
   "last_report_date": "2026-06-27",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-06-30 14:00",
+  "last_check": "2026-06-30 14:30",
   "last_reason": "نفس الاشارة السابقة (BUY_W)",
-  "tp1_hit": false,
+  "tp1_hit": true,
   "tp2_hit": false,
   "trade_history": [
     -298.7,
