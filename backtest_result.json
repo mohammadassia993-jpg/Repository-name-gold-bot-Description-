@@ -1,7 +1,7 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-09 20:00:00",
-    "period_end": "2026-06-30 21:45:00",
+    "period_start": "2026-05-09 20:15:00",
+    "period_end": "2026-06-30 22:00:00",
     "candles": 5000,
     "configs": {
       "الحالي (EMA2 RSI2 MACD1 WT2)": {
@@ -19,8 +19,17 @@
         "losses": 82,
         "win_rate": 38.3,
         "profit_factor": 1.47,
-        "net_pips": 6219.6,
+        "net_pips": 6219.1,
         "avg_pips_per_trade": 46.8
+      },
+      "MACD ديناميكي حسب D1": {
+        "total": 126,
+        "wins": 41,
+        "losses": 85,
+        "win_rate": 32.5,
+        "profit_factor": 1.26,
+        "net_pips": 3678.5,
+        "avg_pips_per_trade": 29.2
       }
     }
   },
@@ -46,6 +55,15 @@
         "profit_factor": 0.88,
         "net_pips": -1163.2,
         "avg_pips_per_trade": -6.0
+      },
+      "MACD ديناميكي حسب D1": {
+        "total": 152,
+        "wins": 39,
+        "losses": 113,
+        "win_rate": 25.7,
+        "profit_factor": 0.93,
+        "net_pips": -490.0,
+        "avg_pips_per_trade": -3.2
       }
     }
   }
