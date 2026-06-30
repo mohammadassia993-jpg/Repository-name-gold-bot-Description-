@@ -1,142 +1,47 @@
 {
   "الأحدث": {
-    "period_start": "2026-05-09 15:00:00",
-    "period_end": "2026-06-30 16:45:00",
+    "period_start": "2026-05-09 15:15:00",
+    "period_end": "2026-06-30 17:00:00",
     "candles": 5000,
-    "configs": {
-      "الإستراتيجية الحقيقية": {
-        "total": 113,
-        "wins": 36,
-        "losses": 77,
-        "win_rate": 31.9,
-        "profit_factor": 1.33,
-        "net_pips": 3983.9,
-        "avg_pips_per_trade": 35.3,
-        "by_type": {
-          "BUY_W": {
-            "n": 40,
-            "w": 8,
-            "pips": -897.0999999999997
-          },
-          "SELL_W": {
-            "n": 73,
-            "w": 28,
-            "pips": 4881.0
-          }
-        }
+    "components": {
+      "EMA20/50 فقط": {
+        "total": 144,
+        "wins": 45,
+        "losses": 99,
+        "win_rate": 31.2,
+        "profit_factor": 1.01,
+        "net_pips": 198.7,
+        "avg_pips_per_trade": 1.4
       },
-      "متوسط عشوائي (5 محاولات)": {
-        "avg_total": 59.2,
-        "avg_win_rate": 32.6,
-        "avg_profit_factor": 1.28,
-        "avg_net_pips": 1392.8,
-        "runs": [
-          {
-            "total": 71,
-            "wins": 18,
-            "losses": 53,
-            "win_rate": 25.4,
-            "profit_factor": 0.84,
-            "net_pips": -1338.2,
-            "avg_pips_per_trade": -18.8,
-            "by_type": {
-              "SELL_RND": {
-                "n": 36,
-                "w": 13,
-                "pips": 1724.9999999999998
-              },
-              "BUY_RND": {
-                "n": 35,
-                "w": 5,
-                "pips": -3063.2000000000003
-              }
-            }
-          },
-          {
-            "total": 59,
-            "wins": 21,
-            "losses": 38,
-            "win_rate": 35.6,
-            "profit_factor": 1.29,
-            "net_pips": 1929.1,
-            "avg_pips_per_trade": 32.7,
-            "by_type": {
-              "BUY_RND": {
-                "n": 35,
-                "w": 8,
-                "pips": -1433.8999999999996
-              },
-              "SELL_RND": {
-                "n": 24,
-                "w": 13,
-                "pips": 3362.999999999999
-              }
-            }
-          },
-          {
-            "total": 60,
-            "wins": 20,
-            "losses": 40,
-            "win_rate": 33.3,
-            "profit_factor": 1.53,
-            "net_pips": 2689.2,
-            "avg_pips_per_trade": 44.8,
-            "by_type": {
-              "BUY_RND": {
-                "n": 28,
-                "w": 8,
-                "pips": -187.8
-              },
-              "SELL_RND": {
-                "n": 32,
-                "w": 12,
-                "pips": 2876.9999999999995
-              }
-            }
-          },
-          {
-            "total": 51,
-            "wins": 21,
-            "losses": 30,
-            "win_rate": 41.2,
-            "profit_factor": 1.35,
-            "net_pips": 1629.6,
-            "avg_pips_per_trade": 32.0,
-            "by_type": {
-              "SELL_RND": {
-                "n": 23,
-                "w": 10,
-                "pips": 616.9000000000002
-              },
-              "BUY_RND": {
-                "n": 28,
-                "w": 11,
-                "pips": 1012.6999999999998
-              }
-            }
-          },
-          {
-            "total": 55,
-            "wins": 15,
-            "losses": 40,
-            "win_rate": 27.3,
-            "profit_factor": 1.39,
-            "net_pips": 2054.1,
-            "avg_pips_per_trade": 37.3,
-            "by_type": {
-              "BUY_RND": {
-                "n": 31,
-                "w": 4,
-                "pips": -977.9
-              },
-              "SELL_RND": {
-                "n": 24,
-                "w": 11,
-                "pips": 3032.0000000000005
-              }
-            }
-          }
-        ]
+      "RSI فقط": {
+        "total": 128,
+        "wins": 35,
+        "losses": 93,
+        "win_rate": 27.3,
+        "profit_factor": 0.92,
+        "net_pips": -1311.2,
+        "avg_pips_per_trade": -10.2
+      },
+      "MACD فقط": {
+        "total": 126,
+        "wins": 50,
+        "losses": 76,
+        "win_rate": 39.7,
+        "profit_factor": 1.5,
+        "net_pips": 6335.9,
+        "avg_pips_per_trade": 50.3
+      },
+      "WaveTrend فقط": {
+        "total": 0
+      },
+      "SMC فقط": {
+        "total": 156,
+        "wins": 41,
+        "losses": 115,
+        "win_rate": 26.3,
+        "profit_factor": 0.93,
+        "net_pips": -1522.6,
+        "avg_pips_per_trade": -9.8
       }
     }
   },
@@ -144,140 +49,45 @@
     "period_start": "2025-07-12 09:30:00",
     "period_end": "2025-09-13 23:45:00",
     "candles": 5000,
-    "configs": {
-      "الإستراتيجية الحقيقية": {
-        "total": 141,
-        "wins": 41,
-        "losses": 100,
-        "win_rate": 29.1,
-        "profit_factor": 0.98,
-        "net_pips": -112.5,
-        "avg_pips_per_trade": -0.8,
-        "by_type": {
-          "SELL_W": {
-            "n": 65,
-            "w": 20,
-            "pips": -270.1000000000001
-          },
-          "BUY_W": {
-            "n": 76,
-            "w": 21,
-            "pips": 157.60000000000025
-          }
-        }
+    "components": {
+      "EMA20/50 فقط": {
+        "total": 182,
+        "wins": 49,
+        "losses": 133,
+        "win_rate": 26.9,
+        "profit_factor": 0.89,
+        "net_pips": -951.9,
+        "avg_pips_per_trade": -5.2
       },
-      "متوسط عشوائي (5 محاولات)": {
-        "avg_total": 84.0,
-        "avg_win_rate": 27.6,
-        "avg_profit_factor": 1.05,
-        "avg_net_pips": 54.0,
-        "runs": [
-          {
-            "total": 89,
-            "wins": 23,
-            "losses": 66,
-            "win_rate": 25.8,
-            "profit_factor": 0.88,
-            "net_pips": -475.3,
-            "avg_pips_per_trade": -5.3,
-            "by_type": {
-              "SELL_RND": {
-                "n": 43,
-                "w": 10,
-                "pips": -633.0999999999999
-              },
-              "BUY_RND": {
-                "n": 46,
-                "w": 13,
-                "pips": 157.80000000000007
-              }
-            }
-          },
-          {
-            "total": 89,
-            "wins": 25,
-            "losses": 64,
-            "win_rate": 28.1,
-            "profit_factor": 0.95,
-            "net_pips": -207.0,
-            "avg_pips_per_trade": -2.3,
-            "by_type": {
-              "SELL_RND": {
-                "n": 42,
-                "w": 15,
-                "pips": 34.700000000000095
-              },
-              "BUY_RND": {
-                "n": 47,
-                "w": 10,
-                "pips": -241.7
-              }
-            }
-          },
-          {
-            "total": 91,
-            "wins": 23,
-            "losses": 68,
-            "win_rate": 25.3,
-            "profit_factor": 0.91,
-            "net_pips": -354.9,
-            "avg_pips_per_trade": -3.9,
-            "by_type": {
-              "BUY_RND": {
-                "n": 48,
-                "w": 15,
-                "pips": 130.10000000000016
-              },
-              "SELL_RND": {
-                "n": 43,
-                "w": 8,
-                "pips": -485.0
-              }
-            }
-          },
-          {
-            "total": 79,
-            "wins": 19,
-            "losses": 60,
-            "win_rate": 24.1,
-            "profit_factor": 1.05,
-            "net_pips": 135.3,
-            "avg_pips_per_trade": 1.7,
-            "by_type": {
-              "SELL_RND": {
-                "n": 31,
-                "w": 8,
-                "pips": 234.90000000000006
-              },
-              "BUY_RND": {
-                "n": 48,
-                "w": 11,
-                "pips": -99.60000000000014
-              }
-            }
-          },
-          {
-            "total": 72,
-            "wins": 25,
-            "losses": 47,
-            "win_rate": 34.7,
-            "profit_factor": 1.45,
-            "net_pips": 1171.9,
-            "avg_pips_per_trade": 16.3,
-            "by_type": {
-              "BUY_RND": {
-                "n": 43,
-                "w": 18,
-                "pips": 1279.4999999999998
-              },
-              "SELL_RND": {
-                "n": 29,
-                "w": 7,
-                "pips": -107.60000000000007
-              }
-            }
-          }
-        ]
+      "RSI فقط": {
+        "total": 153,
+        "wins": 45,
+        "losses": 108,
+        "win_rate": 29.4,
+        "profit_factor": 1.03,
+        "net_pips": 211.2,
+        "avg_pips_per_trade": 1.4
+      },
+      "MACD فقط": {
+        "total": 186,
+        "wins": 49,
+        "losses": 137,
+        "win_rate": 26.3,
+        "profit_factor": 1.02,
+        "net_pips": 143.9,
+        "avg_pips_per_trade": 0.8
+      },
+      "WaveTrend فقط": {
+        "total": 0
+      },
+      "SMC فقط": {
+        "total": 217,
+        "wins": 49,
+        "losses": 168,
+        "win_rate": 22.6,
+        "profit_factor": 0.82,
+        "net_pips": -1891.2,
+        "avg_pips_per_trade": -8.7
       }
     }
   }
