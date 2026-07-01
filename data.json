@@ -1,16 +1,16 @@
 {
-  "last_signal": "SELL_W",
+  "last_signal": null,
   "last_price": 3978.64,
   "last_sl": 3989.36,
   "last_tp1": 3964.34,
   "last_tp2": 3953.61,
   "last_time": "2026-07-01 05:00",
   "history": [],
-  "total": 22,
+  "total": 23,
   "wins": 10,
-  "losses": 12,
+  "losses": 13,
   "min_score": 3,
-  "week_signals": 9,
+  "week_signals": 10,
   "week_wins": 4,
   "week_trades": [
     {
@@ -75,12 +75,19 @@
       "exit": 4022.15191,
       "pips": -114.2,
       "result": "LOSS"
+    },
+    {
+      "sig": "SELL_W",
+      "entry": 3978.64,
+      "exit": 3998.05324,
+      "pips": -194.1,
+      "result": "LOSS"
     }
   ],
   "last_report_date": "2026-06-27",
-  "consecutive_losses": 2,
+  "consecutive_losses": 3,
   "breaker_until": null,
-  "last_check": "2026-07-01 10:45",
+  "last_check": "2026-07-01 11:00",
   "last_reason": "لا اشارة (Score=-1/3)",
   "tp1_hit": false,
   "tp2_hit": false,
@@ -97,7 +104,8 @@
     -195.1,
     275.2,
     -211.9,
-    -114.2
+    -114.2,
+    -194.1
   ],
   "profit_factor": null,
   "last_tp3": 3935.74,
