@@ -37,12 +37,15 @@ def syria_now():
 def syria_time_str():
     return syria_now().strftime("%Y-%m-%d %H:%M") + " (سوريا)"
 
+BEST_HOURS = {2, 3, 4, 17}  # أفضل ساعات مُثبتة رجعياً (PF>1.3 في فترتين منفصلتين)
+
 def in_session():
     now = syria_now()
     if now.weekday() >= 5:  # 5=السبت, 6=الأحد
         return False
-    h = now.hour
-    return SYRIA_OPEN <= h < SYRIA_CLOSE
+    if now.hour not in BEST_HOURS:
+        return False
+    return True
 
 def load_data():
     default = {
