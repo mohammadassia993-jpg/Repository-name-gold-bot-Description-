@@ -238,19 +238,20 @@ def get_data(interval="15m", days="5d"):
         vals = data.get("values", [])
         if not vals:
             print("لا بيانات من Twelve Data: " + str(data))
-            return None, None, None, None
+            return None, None, None, None, None
         vals = vals[::-1]
-        closes = [float(x["close"]) for x in vals]
-        highs  = [float(x["high"])  for x in vals]
-        lows   = [float(x["low"])   for x in vals]
-        opens  = [float(x["open"])  for x in vals]
+        closes  = [float(x["close"])  for x in vals]
+        highs   = [float(x["high"])   for x in vals]
+        lows    = [float(x["low"])    for x in vals]
+        opens   = [float(x["open"])   for x in vals]
+        volumes = [float(x.get("volume", 0)) for x in vals]
         mn = min(len(closes), len(highs), len(lows), len(opens))
         if mn >= 30:
-            return closes[:mn], highs[:mn], lows[:mn], opens[:mn]
-        return None, None, None, None
+            return closes[:mn], highs[:mn], lows[:mn], opens[:mn], volumes[:mn]
+        return None, None, None, None, None
     except Exception as e:
         print("خطأ Twelve Data: " + str(e))
-        return None, None, None, None
+        return None, None, None, None, None
 
 
 def ema(prices,n):
@@ -315,7 +316,7 @@ def get_dxy_trend():
     return "NEUTRAL","DXY غير متاح"
 
 def get_d1_trend():
-    closes,highs,lows,opens=get_data("1d","60d")
+    closes,highs,lows,opens,_=get_data("1d","60d")
     if closes is None: return "NEUTRAL","D1 غير متاح"
     e20=ema(closes,20)
     e50=ema(closes,50) if len(closes)>=50 else e20
@@ -332,7 +333,7 @@ def detect_market_regime(closes,highs,lows):
     else: return "RANGE","سوق جانبي"
 
 def get_h1_trend():
-    closes,highs,lows,opens=get_data("1h","15d")
+    closes,highs,lows,opens,_=get_data("1h","15d")
     if closes is None: return "NEUTRAL","H1 غير متاح"
     e20=ema(closes,20); e50=ema(closes,50)
     price=closes[-1]; r=rsi(closes)
@@ -601,6 +602,24 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
         "الوقت: "+now
     )
 
+def volume_confirms(volumes, lookback=20, multiplier=1.1):
+    if not volumes or len(volumes)<lookback+1: return True  # بدون بيانات → لا نمنع
+    avg_vol=sum(volumes[-lookback-1:-1])/lookback
+    if avg_vol<=0: return True
+    return volumes[-1] >= avg_vol*multiplier
+
+def breakout_signal(closes, highs, lows, volumes, lookback=20):
+    """إشارة كسر نطاق حقيقي: اختراق قمة/قاع آخر N شمعة مع تأكيد حجم 130%+"""
+    if len(closes)<lookback+2 or not volumes: return None
+    pivot_high=max(highs[-lookback-1:-1])
+    pivot_low=min(lows[-lookback-1:-1])
+    price=closes[-1]
+    avg_vol=sum(volumes[-lookback-1:-1])/lookback
+    vol_strong=avg_vol>0 and volumes[-1]>=avg_vol*1.3
+    if price>pivot_high and vol_strong: return "BUY"
+    if price<pivot_low  and vol_strong: return "SELL"
+    return None
+
 def job():
     data=load_data()
     if syria_now().weekday()==5:
@@ -611,7 +630,7 @@ def job():
     if not in_session():
         print("خارج ساعات العمل")
         return
-    closes,highs,lows,opens=get_data("15m","5d")
+    closes,highs,lows,opens,volumes=get_data("15m","5d")
     if closes is None:
         print("فشل جلب البيانات"); return
     data=reset_daily_signal(data)
@@ -632,6 +651,50 @@ def job():
     min_sc=data["min_score"]
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
+        bo_sig=breakout_signal(closes,highs,lows,volumes)
+        if bo_sig and bo_sig!=data.get("last_signal"):
+            atr=r["atr"]; price=closes[-1]; is_buy_bo=bo_sig=="BUY"
+            sl_bo=round(price-atr*ATR_SL if is_buy_bo else price+atr*ATR_SL,2)
+            tp1_bo=round(price+atr*ATR_TP1 if is_buy_bo else price-atr*ATR_TP1,2)
+            tp2_bo=round(price+atr*ATR_TP2 if is_buy_bo else price-atr*ATR_TP2,2)
+            tp3_bo=round(price+atr*ATR_TP3 if is_buy_bo else price-atr*ATR_TP3,2)
+            mh=max(highs[-20:]); ml=min(lows[-20:])
+            tp_struct=round(mh,2) if is_buy_bo else round(ml,2)
+            lot,size_label,target_risk,actual_risk=calc_lot(4,price,sl_bo)
+            risk_warn="⚠️ " if actual_risk>target_risk*1.5 else ""
+            now=syria_time_str()
+            msg=(
+                "🔵 كسر نطاق XAUUSD M15 — إشارة Breakout\n"
+                "========================\n"
+                "السعر:    $"+str(round(price,2))+"\n"
+                "الاتجاه:  "+("صاعد" if is_buy_bo else "هابط")+"\n"
+                "الاشارة:  "+("شراء" if is_buy_bo else "بيع")+" (كسر نطاق+حجم)\n"
+                "الحجم:    مرتفع ✅ (تأكيد الكسر)\n\n"
+                "========================\n"
+                "وقف الخسارة: $"+str(sl_bo)+" (ATR)\n"
+                "TP1: $"+str(tp1_bo)+"\n"
+                "TP2: $"+str(tp2_bo)+"\n"
+                "TP3: $"+str(tp3_bo)+"\n"
+                "🎯 هدف هيكلي (20 شمعة): $"+str(tp_struct)+"\n\n"
+                "💰 حجم الصفقة المقترح: "+size_label+" — "+str(lot)+" لوت\n"
+                +risk_warn+"الخطر الفعلي: "+str(actual_risk)+"% من $"+str(EQUITY)+"\n\n"
+                "⚠️ استخدم سعر MT5 للدخول\n"
+                "الوقت: "+now
+            )
+            if send_telegram(msg):
+                data["last_signal"]=bo_sig
+                data["last_price"]=price
+                data["last_sl"]=sl_bo
+                data["last_tp1"]=tp1_bo
+                data["last_tp2"]=tp2_bo
+                data["last_tp3"]=tp3_bo
+                data["tp1_hit"]=False; data["tp2_hit"]=False
+                data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+                data["last_reason"]="إشارة Breakout مُرسلة: "+bo_sig
+            else:
+                data["last_reason"]="فشل إرسال Breakout: "+LAST_TG_ERROR
+            data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+            save_data(data); return
         print("لا اشارة | Score="+str(r["score"]))
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="لا اشارة (Score="+str(r["score"])+"/"+str(min_sc)+")"
@@ -642,6 +705,11 @@ def job():
         data["last_reason"]="نفس الاشارة السابقة ("+r["st"]+")"
         save_data(data); return
     is_buy="BUY" in r["st"]
+    if not volume_confirms(volumes):
+        print("حجم منخفض — إشارة مرفوضة")
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="مرفوضة: حجم منخفض ("+r["st"]+")"
+        save_data(data); return
     filters=0; blocked=False; block_reason=""
     h1_dir,h1_note=get_h1_trend()
     if h1_dir=="UP" and is_buy:         filters+=1
