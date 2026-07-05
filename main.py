@@ -160,7 +160,16 @@ def check_last_signal(data, price):
             "البوت يستمر بمتابعة TP2.")
         return data
 
-    stop = tp1 if tp2_hit else (entry if tp1_hit else sl)
+    sl_dist=abs(entry-sl) if sl else 0
+    atr_buf=round(sl_dist*0.2,2)
+
+    if tp2_hit:
+        stop=tp1
+    elif tp1_hit:
+        stop=round(entry-atr_buf if is_buy else entry+atr_buf,2)
+    else:
+        stop=sl
+
     if (is_buy and price<=stop) or (not is_buy and price>=stop):
         result="WIN" if pips(price)>=0 else "LOSS"
         close_trade(result, price, "نتيجة الصفقة السابقة")
@@ -555,7 +564,7 @@ def analyze(closes,highs,lows,opens,min_score):
                 wt1=wt1,wt_sig=wt_sig,price=price,
                 lv=lv,reasons=reasons)
 
-def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
+def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc,vol_note=""):
     lv=r["lv"]
     rs="\n".join("- "+x for x in r["reasons"])
     sn="\n".join("- "+x for x in smc["smc_notes"])
@@ -599,7 +608,7 @@ def build_msg(r,smc,h1n,dxy_n,d1_n,regime_n,filters,wr,total,min_sc):
         +risk_warn+"الخطر الفعلي: "+str(actual_risk)+"% من $"+str(EQUITY)+" (المستهدف "+str(target_risk)+"%)\n\n"
         "⚠️ استخدم سعر MT5 للدخول\n"
         "الحد: "+str(min_sc)+"/8\n"
-        "الوقت: "+now
+        "الوقت: "+now+vol_note
     )
 
 def volume_confirms(volumes, lookback=20, multiplier=1.1):
@@ -705,11 +714,8 @@ def job():
         data["last_reason"]="نفس الاشارة السابقة ("+r["st"]+")"
         save_data(data); return
     is_buy="BUY" in r["st"]
-    if not volume_confirms(volumes):
-        print("حجم منخفض — إشارة مرفوضة")
-        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-        data["last_reason"]="مرفوضة: حجم منخفض ("+r["st"]+")"
-        save_data(data); return
+    vol_ok=volume_confirms(volumes)
+    vol_note="" if vol_ok else "\n⚠️ تحذير: حجم التداول منخفض — تأكد من صحة الدخول"
     filters=0; blocked=False; block_reason=""
     h1_dir,h1_note=get_h1_trend()
     if h1_dir=="UP" and is_buy:         filters+=1
@@ -744,7 +750,7 @@ def job():
     total=data["total"]
     wr=round(data["wins"]/total*100) if total>0 else 0
     msg=build_msg(r,smc,h1_note,dxy_note,d1_note,
-                  regime_note,filters,wr,total,min_sc)
+                  regime_note,filters,wr,total,min_sc,vol_note)
     if send_telegram(msg):
         print("✅ "+r["stx"]+" @ $"+str(r["price"]))
         data["last_signal"]=r["st"]
