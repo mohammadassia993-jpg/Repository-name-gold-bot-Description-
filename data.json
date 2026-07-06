@@ -1,24 +1,32 @@
 {
-  "last_signal": "BUY_W",
+  "last_signal": null,
   "last_price": 4184.08,
   "last_sl": 4174.4,
   "last_tp1": 4196.98,
   "last_tp2": 4206.65,
   "last_time": "2026-07-06 00:00",
   "history": [],
-  "total": 25,
+  "total": 26,
   "wins": 12,
-  "losses": 13,
+  "losses": 14,
   "min_score": 3,
-  "week_signals": 0,
+  "week_signals": 1,
   "week_wins": 0,
-  "week_trades": [],
+  "week_trades": [
+    {
+      "sig": "BUY_W",
+      "entry": 4184.08,
+      "exit": 4149.7756,
+      "pips": -343.0,
+      "result": "LOSS"
+    }
+  ],
   "last_report_date": "2026-07-04",
-  "consecutive_losses": 0,
+  "consecutive_losses": 1,
   "breaker_until": null,
-  "last_check": "2026-07-06 01:45",
-  "last_reason": "نفس الاشارة السابقة (BUY_W)",
-  "tp1_hit": true,
+  "last_check": "2026-07-06 07:00",
+  "last_reason": "مرفوضة (SELL_W): دعم",
+  "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
     -298.7,
@@ -36,7 +44,8 @@
     -114.2,
     -194.1,
     716.9,
-    246.4
+    246.4,
+    -343.0
   ],
   "profit_factor": null,
   "last_tp3": 4222.78,
