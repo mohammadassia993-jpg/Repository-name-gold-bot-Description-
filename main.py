@@ -739,12 +739,19 @@ def job():
         nd,nn=check_news()
         if nd: blocked=True; block_reason=nn
         else: filters+=1
+    if not blocked:
+        d1_dir,d1_note=get_d1_trend()
+        if d1_dir=="DOWN" and is_buy:
+            blocked=True; block_reason="D1 هابط — لا شراء عكس الاتجاه اليومي"
+        elif d1_dir=="UP" and not is_buy:
+            blocked=True; block_reason="D1 صاعد — لا بيع عكس الاتجاه اليومي"
+    else:
+        d1_dir,d1_note=get_d1_trend()
     if blocked:
         print("مرفوضة: "+block_reason)
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="مرفوضة ("+r["st"]+"): "+block_reason
         save_data(data); return
-    d1_dir,d1_note=get_d1_trend()
     regime,regime_note=detect_market_regime(closes,highs,lows)
     smc=analyze_smc(closes,highs,lows,opens,r["atr"],is_buy)
     total=data["total"]
