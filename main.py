@@ -178,13 +178,14 @@ def check_last_signal(data, price):
     if data.get("last_time"):
         try:
             opened=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
-            if (datetime.now(timezone.utc)-opened).total_seconds()>6*3600:
+            elapsed=(datetime.now(timezone.utc)-opened).total_seconds()
+            if elapsed>2*3600:
                 if tp1_hit and pips(price)>=0:
-                    close_trade("WIN", price, "⏱️ انتهت المهلة بعد تأمين الهدف الأول")
+                    close_trade("WIN", price, "⏱️ انتهت المهلة (2 ساعة) بعد تأمين الهدف الأول")
                 elif tp1_hit:
-                    close_trade("LOSS", price, "⏱️ انتهت المهلة (تراجع السعر تحت نقطة الدخول)")
+                    close_trade("LOSS", price, "⏱️ انتهت المهلة (تراجع بعد TP1)")
                 else:
-                    send_telegram("⏱️ انتهت مهلة الصفقة السابقة بدون نتيجة حاسمة (6 ساعات)\n"
+                    send_telegram("⏱️ انتهت مهلة الصفقة (2 ساعة) بدون نتيجة\n"
                         "النوع: "+sig+" | الدخول: $"+str(entry)+"\n"
                         "البوت جاهز الآن لإشارة جديدة.")
                     data["last_signal"]=None
@@ -617,6 +618,57 @@ def volume_confirms(volumes, lookback=20, multiplier=1.1):
     if avg_vol<=0: return True
     return volumes[-1] >= avg_vol*multiplier
 
+def price_action_signal(closes, highs, lows, h1_closes, d1_closes):
+    """
+    محرك Price Action نقي:
+    - يحدد الاتجاه من بنية الشموع (HH/HL أو LH/LL)
+    - يدخل على ارتداد لـEMA20 (Pullback) في اتجاه D1 و H1
+    - لا يعتمد على مؤشرات متأخرة
+    """
+    if len(closes)<30 or len(h1_closes)<20 or len(d1_closes)<10:
+        return None
+
+    # اتجاه D1 (الفلتر الأساسي)
+    d1_e20=ema(d1_closes,20) if len(d1_closes)>=20 else d1_closes[-1]
+    d1_dir="UP" if d1_closes[-1]>d1_e20 else "DOWN"
+
+    # اتجاه H1
+    h1_e20=ema(h1_closes,20) if len(h1_closes)>=20 else h1_closes[-1]
+    h1_dir="UP" if h1_closes[-1]>h1_e20 else "DOWN"
+
+    # يجب توافق D1 و H1
+    if d1_dir!=h1_dir: return None
+
+    price=closes[-1]
+    e20=ema(closes,20)
+
+    # تحديد بنية السوق على M15 (آخر 10 شموع)
+    recent_highs=highs[-10:]
+    recent_lows=lows[-10:]
+    prev_highs=highs[-20:-10]
+    prev_lows=lows[-20:-10]
+
+    hh=max(recent_highs)>max(prev_highs)  # Higher High
+    hl=min(recent_lows)>min(prev_lows)    # Higher Low
+    lh=max(recent_highs)<max(prev_highs)  # Lower High
+    ll=min(recent_lows)<min(prev_lows)    # Lower Low
+
+    # شراء: D1+H1 صاعد + بنية صاعدة (HH+HL) + ارتداد لـEMA20
+    if d1_dir=="UP" and hh and hl:
+        if abs(price-e20)/e20 < 0.002:  # السعر قريب من EMA20 (0.2%)
+            return "BUY"
+        if price>e20 and closes[-2]<e20:  # كسر EMA20 للأعلى للتو
+            return "BUY"
+
+    # بيع: D1+H1 هابط + بنية هابطة (LH+LL) + ارتداد لـEMA20
+    if d1_dir=="DOWN" and lh and ll:
+        if abs(price-e20)/e20 < 0.002:  # السعر قريب من EMA20 (0.2%)
+            return "SELL"
+        if price<e20 and closes[-2]>e20:  # كسر EMA20 للأسفل للتو
+            return "SELL"
+
+    return None
+
 def breakout_signal(closes, highs, lows, volumes, lookback=20):
     """إشارة كسر نطاق حقيقي: اختراق قمة/قاع آخر N شمعة مع تأكيد حجم 130%+"""
     if len(closes)<lookback+2 or not volumes: return None
@@ -658,6 +710,56 @@ def job():
             data["consecutive_losses"]=0
             send_telegram("✅ انتهى إيقاف القاطع — البوت يعمل بشكل طبيعي الآن")
     min_sc=data["min_score"]
+
+    # ─── المحرك الجديد: Price Action (أولوية عليا) ───
+    h1_c,_,_,_,_=get_data("1h","15d")
+    d1_c,_,_,_,_=get_data("1d","60d")
+    pa_sig=price_action_signal(closes,highs,lows,
+                                h1_c if h1_c else [],
+                                d1_c if d1_c else [])
+    if pa_sig and pa_sig!=data.get("last_signal"):
+        atr=calc_atr(highs,lows,closes); price=closes[-1]
+        is_buy_pa=pa_sig=="BUY"
+        sl_pa=round(price-atr*ATR_SL if is_buy_pa else price+atr*ATR_SL,2)
+        tp1_pa=round(price+atr*ATR_TP1 if is_buy_pa else price-atr*ATR_TP1,2)
+        tp2_pa=round(price+atr*ATR_TP2 if is_buy_pa else price-atr*ATR_TP2,2)
+        tp3_pa=round(price+atr*ATR_TP3 if is_buy_pa else price-atr*ATR_TP3,2)
+        mh=max(highs[-20:]); ml=min(lows[-20:])
+        tp_struct=round(mh,2) if is_buy_pa else round(ml,2)
+        lot,size_label,target_risk,actual_risk=calc_lot(5,price,sl_pa)
+        risk_warn="⚠️ " if actual_risk>target_risk*1.5 else ""
+        now=syria_time_str()
+        msg=(
+            "🟢 Price Action XAUUSD M15 — إشارة\n"
+            "========================\n"
+            "السعر:    $"+str(round(price,2))+"\n"
+            "الاتجاه:  "+("صاعد" if is_buy_pa else "هابط")+" (D1+H1+M15 متوافقة)\n"
+            "الاشارة:  "+("شراء" if is_buy_pa else "بيع")+" (Price Action)\n\n"
+            "========================\n"
+            "وقف الخسارة: $"+str(sl_pa)+" (ATR×"+str(ATR_SL)+")\n"
+            "TP1: $"+str(tp1_pa)+"\n"
+            "TP2: $"+str(tp2_pa)+"\n"
+            "TP3: $"+str(tp3_pa)+"\n"
+            "🎯 هدف هيكلي (20 شمعة): $"+str(tp_struct)+"\n\n"
+            "💰 "+size_label+" — "+str(lot)+" لوت\n"
+            +risk_warn+"الخطر: "+str(actual_risk)+"% من $"+str(EQUITY)+"\n\n"
+            "⚠️ استخدم سعر MT5 للدخول\n"
+            "الوقت: "+now
+        )
+        if send_telegram(msg):
+            data["last_signal"]=pa_sig
+            data["last_price"]=price
+            data["last_sl"]=sl_pa
+            data["last_tp1"]=tp1_pa; data["last_tp2"]=tp2_pa; data["last_tp3"]=tp3_pa
+            data["tp1_hit"]=False; data["tp2_hit"]=False
+            data["last_time"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+            data["last_reason"]="إشارة PA مُرسلة: "+pa_sig
+        else:
+            data["last_reason"]="فشل إرسال PA: "+LAST_TG_ERROR
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        save_data(data); return
+
+    # ─── المحرك القديم: المؤشرات ───
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
         bo_sig=breakout_signal(closes,highs,lows,volumes)
