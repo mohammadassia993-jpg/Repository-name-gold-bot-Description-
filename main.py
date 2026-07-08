@@ -110,11 +110,11 @@ def check_last_signal(data, price):
         else:
             data["losses"]+=1; em="❌ خسارة"
             data["consecutive_losses"]=data.get("consecutive_losses",0)+1
-            if data["consecutive_losses"]>=4 and not data.get("breaker_until"):
-                until=datetime.now(timezone.utc)+timedelta(hours=24)
+            if data["consecutive_losses"]>=5 and not data.get("breaker_until"):
+                until=datetime.now(timezone.utc)+timedelta(hours=8)
                 data["breaker_until"]=until.strftime("%Y-%m-%d %H:%M")
                 send_telegram("⛔ قاطع الدائرة مُفعّل\n"
-                    "4 خسائر متتالية — إيقاف الإشارات 24 ساعة للمراجعة\n"
+                    "5 خسائر متتالية — إيقاف الإشارات 8 ساعات للمراجعة\n"
                     "سيُستأنف العمل تلقائياً بعد: "+data["breaker_until"]+" UTC")
         wr=round(data["wins"]/data["total"]*100) if data["total"]>0 else 0
         hist=data.setdefault("trade_history",[])
@@ -179,13 +179,13 @@ def check_last_signal(data, price):
         try:
             opened=datetime.strptime(data["last_time"],"%Y-%m-%d %H:%M").replace(tzinfo=timezone.utc)
             elapsed=(datetime.now(timezone.utc)-opened).total_seconds()
-            if elapsed>2*3600:
+            if elapsed>4*3600:
                 if tp1_hit and pips(price)>=0:
-                    close_trade("WIN", price, "⏱️ انتهت المهلة (2 ساعة) بعد تأمين الهدف الأول")
+                    close_trade("WIN", price, "⏱️ انتهت المهلة (4 ساعات) بعد تأمين الهدف الأول")
                 elif tp1_hit:
                     close_trade("LOSS", price, "⏱️ انتهت المهلة (تراجع بعد TP1)")
                 else:
-                    send_telegram("⏱️ انتهت مهلة الصفقة (2 ساعة) بدون نتيجة\n"
+                    send_telegram("⏱️ انتهت مهلة الصفقة (4 ساعات) بدون نتيجة\n"
                         "النوع: "+sig+" | الدخول: $"+str(entry)+"\n"
                         "البوت جاهز الآن لإشارة جديدة.")
                     data["last_signal"]=None
