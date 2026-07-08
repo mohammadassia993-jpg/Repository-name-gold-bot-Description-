@@ -64,8 +64,8 @@
     }
   ],
   "last_report_date": "2026-07-04",
-  "consecutive_losses": 4,
-  "breaker_until": "2026-07-08 14:00",
+  "consecutive_losses": 0,
+  "breaker_until": null,
   "last_check": "2026-07-08 01:45",
   "last_reason": "قاطع الدائرة نشط حتى 2026-07-08 14:00",
   "tp1_hit": false,
