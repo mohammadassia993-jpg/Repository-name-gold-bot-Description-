@@ -37,7 +37,7 @@ def syria_now():
 def syria_time_str():
     return syria_now().strftime("%Y-%m-%d %H:%M") + " (سوريا)"
 
-BEST_HOURS = {2, 3, 4, 10, 11, 17, 20, 21}  # 4 ممتازة + 4 جيدة = 8 ساعات (توازن جودة/تكرار)
+BEST_HOURS = {2, 3, 4, 10, 11, 12, 13, 14, 15, 16, 17, 20, 21}  # تغطية كاملة للجلسات النشطة بتوقيت سوريا
 
 def in_session():
     now = syria_now()
