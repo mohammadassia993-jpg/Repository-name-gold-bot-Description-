@@ -87,8 +87,8 @@
   "last_report_date": "2026-07-04",
   "consecutive_losses": 1,
   "breaker_until": null,
-  "last_check": "2026-07-10 14:30",
-  "last_reason": "لا اشارة (Score=-1/3)",
+  "last_check": "2026-07-10 14:45",
+  "last_reason": "نفس الاشارة السابقة (SELL_W)",
   "tp1_hit": true,
   "tp2_hit": false,
   "trade_history": [
