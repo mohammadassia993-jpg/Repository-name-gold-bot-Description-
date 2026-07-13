@@ -68,12 +68,38 @@ def load_data():
     except: pass
     return default
 
+GH_TOKEN = os.environ.get("GH_TOKEN","")
+GH_REPO  = "mohammadassia993-jpg/Repository-name-gold-bot-Description-"
+
 def save_data(data):
     try:
         with open(DATA_FILE,"w") as f:
             json.dump(data,f,ensure_ascii=False,indent=2)
     except Exception as e:
-        print("خطا حفظ: "+str(e))
+        print("خطا حفظ محلي: "+str(e))
+
+def push_data_to_github():
+    """حفظ data.json مباشرة عبر GitHub API — يتجاوز أي تعارض git"""
+    token=GH_TOKEN or os.environ.get("GITHUB_TOKEN","")
+    if not token: return
+    try:
+        import base64, urllib.request as ur
+        with open(DATA_FILE,"rb") as f:
+            content=base64.b64encode(f.read()).decode()
+        url=f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_FILE}"
+        req=ur.Request(url,headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json"})
+        sha=None
+        try:
+            with ur.urlopen(req) as resp:
+                sha=json.load(resp)["sha"]
+        except: pass
+        payload={"message":"Update bot state [skip ci]","content":content,"branch":"main"}
+        if sha: payload["sha"]=sha
+        req2=ur.Request(url,method="PUT",data=json.dumps(payload).encode(),
+            headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"})
+        with ur.urlopen(req2): pass
+    except Exception as e:
+        print("خطا GitHub API: "+str(e))
 
 def reset_daily_signal(data):
     if not data.get("last_time"): return data
@@ -876,6 +902,7 @@ def job():
         data["last_reason"]="فشل إرسال Telegram: "+LAST_TG_ERROR
     data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
     save_data(data)
+    push_data_to_github()
 
 # ════════════════════════════════════════
 # للتشغيل على PythonAnywhere Web App
