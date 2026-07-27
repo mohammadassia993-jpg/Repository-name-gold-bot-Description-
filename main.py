@@ -5,6 +5,7 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 BOT_TOKEN      = os.environ.get("BOT_TOKEN", "")
 CHAT_ID        = os.environ.get("CHAT_ID", "")
 TWELVE_API_KEY = os.environ.get("TWELVE_API_KEY", "")
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
 DATA_FILE    = "data.json"
 SYRIA_OPEN   = 8
 SYRIA_CLOSE  = 23
@@ -293,6 +294,34 @@ def send_telegram(text):
     except Exception as e:
         LAST_TG_ERROR="Exception: "+str(e)
         print("خطا ارسال: "+str(e)); return False
+
+def gemini_advisory(direction, price, reason, d1_dir, atr):
+    """طبقة استشارية اختيارية عبر Gemini: تُرجع جملة تعليق قصيرة أو None.
+    استشارية بحتة — لا تُغيّر ولا تؤخر ولا تمنع أي قرار تداول. أي فشل أو
+    بطء منها يُتجاهل بصمت ويكمل البوت بقراره الكمي طبيعياً."""
+    if not GEMINI_API_KEY:
+        return None
+    try:
+        import urllib.request as ur
+        prompt=("أنت محلل فني مساعد لبوت تداول ذهب آلي (XAUUSD). البوت اتخذ "
+                "قراره فعلاً ولن يتغير — مهمتك فقط تعليق مختصر جداً (سطر واحد "
+                "بالعربية، أقل من 20 كلمة) يوضح سياق الإشارة التالية دون تكرار "
+                "الأرقام حرفياً:\nالاتجاه: "+str(direction)+", السعر: "+str(price)
+                +", السبب: "+str(reason)+", اتجاه D1: "+str(d1_dir)
+                +", ATR: "+str(round(atr,2)))
+        url=("https://generativelanguage.googleapis.com/v1beta/models/"
+             "gemini-2.5-flash-lite:generateContent?key="+GEMINI_API_KEY)
+        payload={"contents":[{"parts":[{"text":prompt}]}],
+                 "generationConfig":{"maxOutputTokens":60,"temperature":0.3}}
+        req=ur.Request(url,method="POST",data=json.dumps(payload).encode(),
+            headers={"Content-Type":"application/json"})
+        with ur.urlopen(req,timeout=8) as resp:
+            d=json.load(resp)
+        txt=d["candidates"][0]["content"]["parts"][0]["text"].strip()
+        return txt[:200] if txt else None
+    except Exception as e:
+        print("Gemini advisory فشل (تجاهل، لا يؤثر على الإشارة): "+str(e))
+        return None
 
 # ── XAUUSD=X أولاً (سعر فوري = نفس MT5) ──
 def get_data(interval="15m", days="5d"):
@@ -807,6 +836,8 @@ def job():
         lot,size_label,target_risk,actual_risk=calc_lot(5,price,sl_pa)
         risk_warn="⚠️ " if actual_risk>target_risk*1.5 else ""
         now=syria_time_str()
+        ai_note=gemini_advisory(pa_sig,price,"Price Action (D1+H1+M15 متوافقة)",
+                                 d1_dir_simple,atr)
         msg=(
             "🟢 Price Action XAUUSD M15 — إشارة\n"
             "========================\n"
@@ -821,6 +852,7 @@ def job():
             "🎯 هدف هيكلي (20 شمعة): $"+str(tp_struct)+"\n\n"
             "💰 "+size_label+" — "+str(lot)+" لوت\n"
             +risk_warn+"الخطر: "+str(actual_risk)+"% من $"+str(EQUITY)+"\n\n"
+            +("🤖 "+ai_note+"\n\n" if ai_note else "")+
             "⚠️ استخدم سعر MT5 للدخول\n"
             "الوقت: "+now
         )
@@ -852,6 +884,8 @@ def job():
             lot,size_label,target_risk,actual_risk=calc_lot(4,price,sl_bo)
             risk_warn="⚠️ " if actual_risk>target_risk*1.5 else ""
             now=syria_time_str()
+            ai_note=gemini_advisory(bo_sig,price,"كسر نطاق (Breakout) مع تأكيد حجم",
+                                     d1_dir_simple,atr)
             msg=(
                 "🔵 كسر نطاق XAUUSD M15 — إشارة Breakout\n"
                 "========================\n"
@@ -867,6 +901,7 @@ def job():
                 "🎯 هدف هيكلي (20 شمعة): $"+str(tp_struct)+"\n\n"
                 "💰 حجم الصفقة المقترح: "+size_label+" — "+str(lot)+" لوت\n"
                 +risk_warn+"الخطر الفعلي: "+str(actual_risk)+"% من $"+str(EQUITY)+"\n\n"
+                +("🤖 "+ai_note+"\n\n" if ai_note else "")+
                 "⚠️ استخدم سعر MT5 للدخول\n"
                 "الوقت: "+now
             )
@@ -938,6 +973,9 @@ def job():
     wr=round(data["wins"]/total*100) if total>0 else 0
     msg=build_msg(r,smc,h1_note,dxy_note,d1_note,
                   regime_note,filters,wr,total,min_sc,vol_note)
+    ai_note=gemini_advisory(r["st"],r["price"],"محرك المؤشرات (Score="+str(r["score"])+")",
+                             d1_dir,r["atr"])
+    if ai_note: msg=msg+"\n\n🤖 "+ai_note
     if send_telegram(msg):
         print("✅ "+r["stx"]+" @ $"+str(r["price"]))
         data["last_signal"]=r["st"]
