@@ -43,6 +43,10 @@ def in_session():
     now = syria_now()
     if now.weekday() >= 5:  # 5=السبت, 6=الأحد
         return False
+    # قطع صارم: لا إشارات دخول جديدة بين 23:00 والفجر (02:00) بتوقيت سوريا،
+    # بغض النظر عن أي تعديل لاحق على BEST_HOURS.
+    if now.hour >= SYRIA_CLOSE or now.hour < 2:
+        return False
     if now.hour not in BEST_HOURS:
         return False
     return True
@@ -79,27 +83,53 @@ def save_data(data):
         print("خطا حفظ محلي: "+str(e))
 
 def push_data_to_github():
-    """حفظ data.json مباشرة عبر GitHub API — يتجاوز أي تعارض git"""
+    """حفظ data.json مباشرة عبر GitHub API — يتجاوز أي تعارض git.
+    يعيد True عند النجاح، ويرفع استثناء عند الفشل (بدل الكتم الصامت)
+    حتى تفشل تشغيلة GitHub Actions بوضوح (علامة X حمراء) ولا تتكرر
+    الإشارات بسبب فقدان الحالة."""
     token=GH_TOKEN or os.environ.get("GITHUB_TOKEN","")
-    if not token: return
+    if not token:
+        raise RuntimeError("GH_TOKEN غير موجود — لا يمكن حفظ الحالة على GitHub")
+    import base64, urllib.request as ur, urllib.error as ue
+    with open(DATA_FILE,"rb") as f:
+        content=base64.b64encode(f.read()).decode()
+    url=f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_FILE}"
+    req=ur.Request(url,headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json"})
+    sha=None
     try:
-        import base64, urllib.request as ur
-        with open(DATA_FILE,"rb") as f:
-            content=base64.b64encode(f.read()).decode()
-        url=f"https://api.github.com/repos/{GH_REPO}/contents/{DATA_FILE}"
-        req=ur.Request(url,headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json"})
-        sha=None
-        try:
-            with ur.urlopen(req) as resp:
-                sha=json.load(resp)["sha"]
-        except: pass
-        payload={"message":"Update bot state [skip ci]","content":content,"branch":"main"}
-        if sha: payload["sha"]=sha
-        req2=ur.Request(url,method="PUT",data=json.dumps(payload).encode(),
-            headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"})
-        with ur.urlopen(req2): pass
+        with ur.urlopen(req) as resp:
+            sha=json.load(resp)["sha"]
+    except Exception:
+        pass  # الملف قد لا يكون موجوداً بعد — طبيعي أول مرة
+    payload={"message":"Update bot state [skip ci]","content":content,"branch":"main"}
+    if sha: payload["sha"]=sha
+    req2=ur.Request(url,method="PUT",data=json.dumps(payload).encode(),
+        headers={"Authorization":"token "+token,"Accept":"application/vnd.github+json","Content-Type":"application/json"})
+    try:
+        with ur.urlopen(req2) as resp2:
+            return resp2.status in (200,201)
+    except ue.HTTPError as e:
+        body=e.read().decode(errors="ignore")[:300]
+        raise RuntimeError("فشل حفظ الحالة على GitHub (HTTP "+str(e.code)+"): "+body)
+
+_PERSIST_ALERT_SENT=False
+def persist(data):
+    """يحفظ محلياً ثم يرفع لـGitHub. عند فشل الرفع: يرسل تنبيه Telegram
+    مرة واحدة فقط بهذه التشغيلة ثم يرفع الاستثناء ليفشل الـAction بوضوح."""
+    global _PERSIST_ALERT_SENT
+    save_data(data)
+    try:
+        push_data_to_github()
     except Exception as e:
         print("خطا GitHub API: "+str(e))
+        if not _PERSIST_ALERT_SENT:
+            _PERSIST_ALERT_SENT=True
+            try:
+                send_telegram("⚠️ تحذير فني: فشل حفظ حالة البوت على GitHub\n"
+                    +str(e)+"\nقد تتكرر الإشارة نفسها إن لم يُحل هذا سريعاً.")
+            except Exception:
+                pass
+        raise
 
 def reset_daily_signal(data):
     if not data.get("last_time"): return data
@@ -695,32 +725,42 @@ def price_action_signal(closes, highs, lows, h1_closes, d1_closes):
 
     return None
 
-def breakout_signal(closes, highs, lows, volumes, lookback=20):
-    """إشارة كسر نطاق حقيقي: اختراق قمة/قاع آخر N شمعة مع تأكيد حجم 130%+"""
+def breakout_signal(closes, highs, lows, volumes, d1_dir=None, lookback=20):
+    """إشارة كسر نطاق حقيقي: اختراق قمة/قاع آخر N شمعة مع تأكيد حجم 130%+.
+    d1_dir: اتجاه D1 ("UP"/"DOWN"/None) — يمنع الإشارة إن كانت عكس الاتجاه
+    اليومي، لتفادي الشراء في اتجاه هابط أو البيع في اتجاه صاعد."""
     if len(closes)<lookback+2 or not volumes: return None
     pivot_high=max(highs[-lookback-1:-1])
     pivot_low=min(lows[-lookback-1:-1])
     price=closes[-1]
     avg_vol=sum(volumes[-lookback-1:-1])/lookback
     vol_strong=avg_vol>0 and volumes[-1]>=avg_vol*1.3
-    if price>pivot_high and vol_strong: return "BUY"
-    if price<pivot_low  and vol_strong: return "SELL"
+    if price>pivot_high and vol_strong:
+        if d1_dir=="DOWN": return None
+        return "BUY"
+    if price<pivot_low  and vol_strong:
+        if d1_dir=="UP": return None
+        return "SELL"
     return None
 
 def job():
+    missing=[n for n,v in [("BOT_TOKEN",BOT_TOKEN),("CHAT_ID",CHAT_ID),
+             ("TWELVE_API_KEY",TWELVE_API_KEY)] if not v]
+    if missing:
+        print("❌ أسرار ناقصة، البوت متوقف: "+", ".join(missing))
+        return
     data=load_data()
     if syria_now().weekday()==5:
         print("السبت — تقرير اسبوعي فقط")
         data=check_weekly_report(data)
-        save_data(data)
-        return
-    if not in_session():
-        print("خارج ساعات العمل")
+        persist(data)
         return
     closes,highs,lows,opens,volumes=get_data("15m","5d")
     if closes is None:
         print("فشل جلب البيانات"); return
     data=reset_daily_signal(data)
+    # إدارة الصفقة المفتوحة (TP/SL/المهلة) تعمل دائماً بغض النظر عن ساعات
+    # الدخول، حتى لا تتأخر النتائج أو تُفقد المتابعة خارج الساعات المفضّلة.
     data=check_last_signal(data,closes[-1])
     bu=data.get("breaker_until")
     if bu:
@@ -729,17 +769,29 @@ def job():
             print("⛔ قاطع الدائرة نشط حتى "+bu)
             data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
             data["last_reason"]="قاطع الدائرة نشط حتى "+bu
-            save_data(data)
+            persist(data)
             return
         else:
             data["breaker_until"]=None
             data["consecutive_losses"]=0
             send_telegram("✅ انتهى إيقاف القاطع — البوت يعمل بشكل طبيعي الآن")
+
+    if not in_session():
+        # لا إشارات دخول جديدة خارج الساعات المسموحة (إيقاف صارم بعد 23:00
+        # بتوقيت سوريا) — لكن نحفظ نتائج إدارة الصفقة أعلاه أولاً.
+        print("خارج ساعات العمل — لا إشارات جديدة")
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="خارج ساعات التداول المسموحة"
+        persist(data)
+        return
     min_sc=data["min_score"]
 
     # ─── المحرك الجديد: Price Action (أولوية عليا) ───
     h1_c,_,_,_,_=get_data("1h","15d")
     d1_c,_,_,_,_=get_data("1d","60d")
+    d1_dir_simple=None
+    if d1_c and len(d1_c)>=20:
+        d1_dir_simple="UP" if d1_c[-1]>ema(d1_c,20) else "DOWN"
     pa_sig=price_action_signal(closes,highs,lows,
                                 h1_c if h1_c else [],
                                 d1_c if d1_c else [])
@@ -783,12 +835,12 @@ def job():
         else:
             data["last_reason"]="فشل إرسال PA: "+LAST_TG_ERROR
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-        save_data(data); return
+        persist(data); return
 
     # ─── المحرك القديم: المؤشرات ───
     r=analyze(closes,highs,lows,opens,min_sc)
     if r["st"]=="WAIT":
-        bo_sig=breakout_signal(closes,highs,lows,volumes)
+        bo_sig=breakout_signal(closes,highs,lows,volumes,d1_dir_simple)
         if bo_sig and bo_sig!=data.get("last_signal"):
             atr=r["atr"]; price=closes[-1]; is_buy_bo=bo_sig=="BUY"
             sl_bo=round(price-atr*ATR_SL if is_buy_bo else price+atr*ATR_SL,2)
@@ -831,16 +883,16 @@ def job():
             else:
                 data["last_reason"]="فشل إرسال Breakout: "+LAST_TG_ERROR
             data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-            save_data(data); return
+            persist(data); return
         print("لا اشارة | Score="+str(r["score"]))
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="لا اشارة (Score="+str(r["score"])+"/"+str(min_sc)+")"
-        save_data(data); return
+        persist(data); return
     if r["st"]==data["last_signal"]:
         print("نفس الاشارة")
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="نفس الاشارة السابقة ("+r["st"]+")"
-        save_data(data); return
+        persist(data); return
     is_buy="BUY" in r["st"]
     vol_ok=volume_confirms(volumes)
     vol_note="" if vol_ok else "\n⚠️ تحذير: حجم التداول منخفض — تأكد من صحة الدخول"
@@ -879,7 +931,7 @@ def job():
         print("مرفوضة: "+block_reason)
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="مرفوضة ("+r["st"]+"): "+block_reason
-        save_data(data); return
+        persist(data); return
     regime,regime_note=detect_market_regime(closes,highs,lows)
     smc=analyze_smc(closes,highs,lows,opens,r["atr"],is_buy)
     total=data["total"]
@@ -901,8 +953,7 @@ def job():
     else:
         data["last_reason"]="فشل إرسال Telegram: "+LAST_TG_ERROR
     data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
-    save_data(data)
-    push_data_to_github()
+    persist(data)
 
 # ════════════════════════════════════════
 # للتشغيل على PythonAnywhere Web App
