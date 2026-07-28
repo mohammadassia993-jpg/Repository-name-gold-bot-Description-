@@ -1,4 +1,4 @@
- name: Gold Bot
+name: Gold Bot
 on:
   workflow_dispatch:
   schedule:
