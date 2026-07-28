@@ -59,8 +59,8 @@
   "last_report_date": "2026-07-11",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-07-28 18:59",
-  "last_reason": "إشارة مُرسلة: SELL_W",
+  "last_check": "2026-07-28 20:22",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
