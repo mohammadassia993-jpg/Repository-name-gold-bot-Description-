@@ -1,6 +1,8 @@
-name: Gold Bot
+ name: Gold Bot
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '*/15 * * * *'
 permissions:
   contents: write
 jobs:
@@ -18,4 +20,5 @@ jobs:
           CHAT_ID: ${{ secrets.CHAT_ID }}
           TWELVE_API_KEY: ${{ secrets.TWELVE_API_KEY }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: timeout 800 python main.py
