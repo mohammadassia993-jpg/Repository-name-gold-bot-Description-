@@ -59,8 +59,8 @@
   "last_report_date": "2026-07-11",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-07-28 23:45",
-  "last_reason": "إشارة PA مُرسلة: SELL",
+  "last_check": "2026-07-29 03:26",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
