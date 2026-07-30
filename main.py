@@ -217,13 +217,12 @@ def check_last_signal(data, price):
             "البوت يستمر بمتابعة TP2.")
         return data
 
-    sl_dist=abs(entry-sl) if sl else 0
-    atr_buf=round(sl_dist*0.2,2)
-
     if tp2_hit:
-        stop=tp1
+        stop=tp1  # ربح مؤمَّن (TP1) بعد تحقق TP2
     elif tp1_hit:
-        stop=round(entry-atr_buf if is_buy else entry+atr_buf,2)
+        stop=entry  # تأمين حقيقي عند نقطة الدخول تماماً — يطابق الرسالة
+                    # المُرسلة للمستخدم ("انتقل لنقطة الدخول")، بدل نقطة
+                    # تحتها كانت تُسجَّل خطأً كـ"خسارة" رغم بلوغ TP1
     else:
         stop=sl
 
@@ -811,6 +810,16 @@ def job():
         print("خارج ساعات العمل — لا إشارات جديدة")
         data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
         data["last_reason"]="خارج ساعات التداول المسموحة"
+        persist(data)
+        return
+    if data.get("last_signal"):
+        # لا تُفتح صفقة جديدة أبداً طالما توجد صفقة مفتوحة — كانت الإشارات
+        # المعاكسة سابقاً تستبدل الصفقة القديمة فوراً دون إغلاقها أو تسجيل
+        # نتيجتها، فتختفي من السجل دون أي تقرير. الآن: صفقة واحدة فقط بالمرة،
+        # تُغلق رسمياً (TP/SL/مهلة) مع تقرير كامل قبل السماح بأي دخول جديد.
+        print("⏳ صفقة مفتوحة بالفعل ("+data["last_signal"]+") — بانتظار إغلاقها")
+        data["last_check"]=datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+        data["last_reason"]="صفقة مفتوحة قيد المتابعة: "+data["last_signal"]
         persist(data)
         return
     min_sc=data["min_score"]
