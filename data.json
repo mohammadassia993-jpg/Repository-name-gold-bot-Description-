@@ -10,81 +10,10 @@
   "wins": 18,
   "losses": 28,
   "min_score": 3,
-  "week_signals": 10,
-  "week_wins": 3,
-  "week_trades": [
-    {
-      "sig": "SELL_W",
-      "entry": 4063.1,
-      "exit": 3995.69268,
-      "pips": 674.1,
-      "result": "WIN_BIG"
-    },
-    {
-      "sig": "SELL_W",
-      "entry": 4052.88,
-      "exit": 4027.77252,
-      "pips": 251.1,
-      "result": "WIN_BIG"
-    },
-    {
-      "sig": "SELL_W",
-      "entry": 4027.77,
-      "exit": 4039.40604,
-      "pips": -116.4,
-      "result": "LOSS"
-    },
-    {
-      "sig": "SELL_W",
-      "entry": 4032.69,
-      "exit": 3999.40251,
-      "pips": 332.9,
-      "result": "WIN_BIG"
-    },
-    {
-      "sig": "BUY_W",
-      "entry": 4095.92,
-      "exit": 4084.08174,
-      "pips": -118.4,
-      "result": "LOSS"
-    },
-    {
-      "sig": "SELL_W",
-      "entry": 4030.82,
-      "exit": 4043.24396,
-      "pips": -124.2,
-      "result": "LOSS"
-    },
-    {
-      "sig": "SELL",
-      "entry": 4021.06333,
-      "exit": 4036.42927,
-      "pips": -153.7,
-      "result": "LOSS"
-    },
-    {
-      "sig": "SELL_W",
-      "entry": 4022.55,
-      "exit": 4031.1263,
-      "pips": -85.8,
-      "result": "LOSS"
-    },
-    {
-      "sig": "BUY",
-      "entry": 4077.4015,
-      "exit": 4053.96489,
-      "pips": -234.4,
-      "result": "LOSS"
-    },
-    {
-      "sig": "BUY_W",
-      "entry": 4107.24,
-      "exit": 4088.59344,
-      "pips": -186.5,
-      "result": "LOSS"
-    }
-  ],
-  "last_report_date": "2026-07-11",
+  "week_signals": 0,
+  "week_wins": 0,
+  "week_trades": [],
+  "last_report_date": "2026-08-01",
   "consecutive_losses": 1,
   "breaker_until": null,
   "last_check": "2026-07-31 20:24",
