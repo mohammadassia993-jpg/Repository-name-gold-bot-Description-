@@ -24,8 +24,8 @@
   "last_report_date": "2026-08-01",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-08-04 00:16",
-  "last_reason": "مرفوضة (BUY_W): مقاومة",
+  "last_check": "2026-08-04 03:50",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
