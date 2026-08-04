@@ -1,5 +1,5 @@
 {
-  "last_signal": "BUY_W",
+  "last_signal": null,
   "last_price": 4081.0,
   "last_sl": 4058.92,
   "last_tp1": 4104.92,
@@ -24,8 +24,8 @@
   "last_report_date": "2026-08-01",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-08-04 18:18",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: BUY_W",
+  "last_check": "2026-08-04 20:10",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
