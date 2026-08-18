@@ -38,8 +38,8 @@
   "last_report_date": "2026-08-15",
   "consecutive_losses": 4,
   "breaker_until": null,
-  "last_check": "2026-08-18 12:03",
-  "last_reason": "مرفوضة (SELL_W): D1 صاعد — لا بيع عكس الاتجاه اليومي",
+  "last_check": "2026-08-18 13:10",
+  "last_reason": "مرفوضة (SELL_W): دعم",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
