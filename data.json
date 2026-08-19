@@ -38,8 +38,8 @@
   "last_report_date": "2026-08-15",
   "consecutive_losses": 4,
   "breaker_until": null,
-  "last_check": "2026-08-19 08:56",
-  "last_reason": "إشارة PA مُرسلة: BUY",
+  "last_check": "2026-08-19 09:42",
+  "last_reason": "صفقة مفتوحة قيد المتابعة: BUY",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
