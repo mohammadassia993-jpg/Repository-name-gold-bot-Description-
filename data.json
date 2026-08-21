@@ -66,9 +66,9 @@
   "last_report_date": "2026-08-15",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-08-21 01:59",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: BUY",
-  "tp1_hit": false,
+  "last_check": "2026-08-21 03:12",
+  "last_reason": "خارج ساعات التداول المسموحة",
+  "tp1_hit": true,
   "tp2_hit": false,
   "trade_history": [
     -298.7,
