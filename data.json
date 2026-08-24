@@ -16,8 +16,8 @@
   "last_report_date": "2026-08-22",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-08-24 01:53",
-  "last_reason": "إشارة مُرسلة: BUY_W",
+  "last_check": "2026-08-24 03:11",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
