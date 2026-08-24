@@ -1,5 +1,5 @@
 {
-  "last_signal": "BUY",
+  "last_signal": null,
   "last_price": 4647.5241,
   "last_sl": 4633.72,
   "last_tp1": 4665.92,
@@ -16,8 +16,8 @@
   "last_report_date": "2026-08-22",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-08-24 10:55",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: BUY",
+  "last_check": "2026-08-24 11:36",
+  "last_reason": "مرفوضة (BUY_W): مقاومة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
