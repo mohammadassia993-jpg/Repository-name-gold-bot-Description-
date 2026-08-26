@@ -52,8 +52,8 @@
   "last_report_date": "2026-08-22",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-08-26 05:51",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-08-26 07:00",
+  "last_reason": "مرفوضة (SELL_W): D1 صاعد — لا بيع عكس الاتجاه اليومي",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
