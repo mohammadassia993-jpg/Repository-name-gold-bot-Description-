@@ -10,46 +10,10 @@
   "wins": 26,
   "losses": 41,
   "min_score": 3,
-  "week_signals": 5,
-  "week_wins": 1,
-  "week_trades": [
-    {
-      "sig": "BUY",
-      "entry": 4653.65031,
-      "exit": 4648.0564,
-      "pips": -55.9,
-      "result": "LOSS"
-    },
-    {
-      "sig": "BUY",
-      "entry": 4668.46026,
-      "exit": 4622.94446,
-      "pips": -455.2,
-      "result": "LOSS"
-    },
-    {
-      "sig": "BUY",
-      "entry": 4642.55167,
-      "exit": 4658.65062,
-      "pips": 161.0,
-      "result": "WIN"
-    },
-    {
-      "sig": "BUY_W",
-      "entry": 4671.06,
-      "exit": 4653.88108,
-      "pips": -171.8,
-      "result": "LOSS"
-    },
-    {
-      "sig": "BUY",
-      "entry": 4653.88108,
-      "exit": 4641.9039,
-      "pips": -119.8,
-      "result": "LOSS"
-    }
-  ],
-  "last_report_date": "2026-08-22",
+  "week_signals": 0,
+  "week_wins": 0,
+  "week_trades": [],
+  "last_report_date": "2026-08-29",
   "consecutive_losses": 2,
   "breaker_until": null,
   "last_check": "2026-08-28 12:04",
