@@ -1,10 +1,10 @@
 {
-  "last_signal": null,
-  "last_price": 4653.88108,
-  "last_sl": 4647.85,
-  "last_tp1": 4661.92,
-  "last_tp2": 4667.95,
-  "last_time": "2026-08-26 00:01",
+  "last_signal": "SELL_W",
+  "last_price": 4448.28,
+  "last_sl": 4474.97,
+  "last_tp1": 4420.94,
+  "last_tp2": 4400.43,
+  "last_time": "2026-08-31 01:20",
   "history": [],
   "total": 67,
   "wins": 26,
@@ -16,8 +16,8 @@
   "last_report_date": "2026-08-29",
   "consecutive_losses": 2,
   "breaker_until": null,
-  "last_check": "2026-08-30 22:48",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-08-31 01:20",
+  "last_reason": "إشارة مُرسلة: SELL_W",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
@@ -81,7 +81,7 @@
     -119.8
   ],
   "profit_factor": null,
-  "last_tp3": 4678.0,
+  "last_tp3": 4366.26,
   "tg_test": true,
   "tg_test_error": ""
 }
