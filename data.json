@@ -1,5 +1,5 @@
 {
-  "last_signal": "SELL_W",
+  "last_signal": null,
   "last_price": 4425.98,
   "last_sl": 4439.61,
   "last_tp1": 4407.8,
@@ -16,8 +16,8 @@
   "last_report_date": "2026-09-05",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-09-04 18:27",
-  "last_reason": "إشارة مُرسلة: SELL_W",
+  "last_check": "2026-09-05 22:22",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
