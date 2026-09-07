@@ -16,10 +16,10 @@
   "last_report_date": "2026-09-05",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-09-07 00:17",
-  "last_reason": "إشارة مُرسلة: SELL_W",
+  "last_check": "2026-09-07 05:07",
+  "last_reason": "خارج ساعات التداول المسموحة",
   "tp1_hit": false,
-  "tp2_hit": false,
+  "tp2_hit": true,
   "trade_history": [
     -298.7,
     516.9,
