@@ -45,9 +45,9 @@
   "last_report_date": "2026-09-05",
   "consecutive_losses": 1,
   "breaker_until": null,
-  "last_check": "2026-09-10 17:38",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: SELL",
-  "tp1_hit": false,
+  "last_check": "2026-09-10 20:04",
+  "last_reason": "خارج ساعات التداول المسموحة",
+  "tp1_hit": true,
   "tp2_hit": false,
   "trade_history": [
     -298.7,
