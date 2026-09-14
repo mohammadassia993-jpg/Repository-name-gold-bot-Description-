@@ -16,8 +16,8 @@
   "last_report_date": "2026-09-12",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-09-13 23:24",
-  "last_reason": "إشارة مُرسلة: SELL_W",
+  "last_check": "2026-09-14 01:30",
+  "last_reason": "صفقة مفتوحة قيد المتابعة: SELL_W",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
