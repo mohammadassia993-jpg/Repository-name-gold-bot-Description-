@@ -16,8 +16,8 @@
   "last_report_date": "2026-10-10",
   "consecutive_losses": 4,
   "breaker_until": null,
-  "last_check": "2026-10-11 20:52",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-10-12 00:24",
+  "last_reason": "مرفوضة (BUY_W): مقاومة",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
