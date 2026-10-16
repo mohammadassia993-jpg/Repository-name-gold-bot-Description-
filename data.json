@@ -31,8 +31,8 @@
   "last_report_date": "2026-10-10",
   "consecutive_losses": 1,
   "breaker_until": null,
-  "last_check": "2026-10-16 14:09",
-  "last_reason": "إشارة مُرسلة: BUY_W",
+  "last_check": "2026-10-16 18:06",
+  "last_reason": "صفقة مفتوحة قيد المتابعة: BUY_W",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
