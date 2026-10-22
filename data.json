@@ -1,17 +1,17 @@
 {
   "last_signal": "SELL",
-  "last_price": 4096.6238,
-  "last_sl": 4108.1,
-  "last_tp1": 4081.32,
-  "last_tp2": 4069.85,
-  "last_time": "2026-10-22 07:28",
+  "last_price": 4046.35462,
+  "last_sl": 4056.93,
+  "last_tp1": 4032.25,
+  "last_tp2": 4021.68,
+  "last_time": "2026-10-22 18:00",
   "history": [],
-  "total": 85,
-  "wins": 35,
+  "total": 86,
+  "wins": 36,
   "losses": 50,
   "min_score": 3,
-  "week_signals": 1,
-  "week_wins": 1,
+  "week_signals": 2,
+  "week_wins": 2,
   "week_trades": [
     {
       "sig": "SELL",
@@ -19,14 +19,21 @@
       "exit": 4137.70755,
       "pips": 308.9,
       "result": "WIN"
+    },
+    {
+      "sig": "SELL",
+      "entry": 4096.6238,
+      "exit": 4046.35462,
+      "pips": 502.7,
+      "result": "WIN_BIG"
     }
   ],
   "last_report_date": "2026-10-17",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-10-22 13:09",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: SELL",
-  "tp1_hit": true,
+  "last_check": "2026-10-22 18:00",
+  "last_reason": "إشارة PA مُرسلة: SELL",
+  "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
     -298.7,
@@ -104,10 +111,11 @@
     -148.2,
     169.5,
     -235.6,
-    308.9
+    308.9,
+    502.7
   ],
   "profit_factor": null,
-  "last_tp3": 4050.72,
+  "last_tp3": 4004.05,
   "tg_test": true,
   "tg_test_error": ""
 }
