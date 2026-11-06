@@ -10,25 +10,10 @@
   "wins": 38,
   "losses": 51,
   "min_score": 3,
-  "week_signals": 2,
-  "week_wins": 1,
-  "week_trades": [
-    {
-      "sig": "BUY_W",
-      "entry": 4065.79,
-      "exit": 4139.35029,
-      "pips": 735.6,
-      "result": "WIN_BIG"
-    },
-    {
-      "sig": "BUY",
-      "entry": 4126.47948,
-      "exit": 4113.90352,
-      "pips": -125.8,
-      "result": "LOSS"
-    }
-  ],
-  "last_report_date": "2026-10-31",
+  "week_signals": 0,
+  "week_wins": 0,
+  "week_trades": [],
+  "last_report_date": "2026-11-07",
   "consecutive_losses": 1,
   "breaker_until": null,
   "last_check": "2026-11-06 15:51",
