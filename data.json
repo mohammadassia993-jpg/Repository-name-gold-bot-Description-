@@ -45,8 +45,8 @@
   "last_report_date": "2026-11-07",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-11-12 20:51",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-11-13 01:44",
+  "last_reason": "لا اشارة (Score=-1/3)",
   "tp1_hit": false,
   "tp2_hit": false,
   "trade_history": [
