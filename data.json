@@ -1,25 +1,33 @@
 {
-  "last_signal": "SELL_W",
+  "last_signal": null,
   "last_price": 3861.91,
   "last_sl": 3894.46,
   "last_tp1": 3845.23,
   "last_tp2": 3832.72,
   "last_time": "2026-11-17 18:27",
   "history": [],
-  "total": 93,
-  "wins": 40,
+  "total": 94,
+  "wins": 41,
   "losses": 53,
   "min_score": 3,
-  "week_signals": 0,
-  "week_wins": 0,
-  "week_trades": [],
+  "week_signals": 1,
+  "week_wins": 1,
+  "week_trades": [
+    {
+      "sig": "SELL_W",
+      "entry": 3861.91,
+      "exit": 3768.51555,
+      "pips": 933.9,
+      "result": "WIN_BIG"
+    }
+  ],
   "last_report_date": "2026-11-14",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-11-18 01:13",
-  "last_reason": "صفقة مفتوحة قيد المتابعة: SELL_W",
+  "last_check": "2026-11-18 08:37",
+  "last_reason": "مرفوضة (SELL_W): دعم",
   "tp1_hit": false,
-  "tp2_hit": true,
+  "tp2_hit": false,
   "trade_history": [
     -298.7,
     516.9,
@@ -104,7 +112,8 @@
     -193.1,
     743.7,
     -573.0,
-    593.4
+    593.4,
+    933.9
   ],
   "profit_factor": null,
   "last_tp3": 3811.87,
