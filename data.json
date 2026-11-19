@@ -24,10 +24,10 @@
   "last_report_date": "2026-11-14",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-11-19 04:33",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-11-19 13:57",
+  "last_reason": "صفقة مفتوحة قيد المتابعة: SELL_W",
   "tp1_hit": true,
-  "tp2_hit": false,
+  "tp2_hit": true,
   "trade_history": [
     -298.7,
     516.9,
