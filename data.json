@@ -10,18 +10,10 @@
   "wins": 41,
   "losses": 53,
   "min_score": 3,
-  "week_signals": 1,
-  "week_wins": 1,
-  "week_trades": [
-    {
-      "sig": "SELL_W",
-      "entry": 3861.91,
-      "exit": 3768.51555,
-      "pips": 933.9,
-      "result": "WIN_BIG"
-    }
-  ],
-  "last_report_date": "2026-11-14",
+  "week_signals": 0,
+  "week_wins": 0,
+  "week_trades": [],
+  "last_report_date": "2026-11-21",
   "consecutive_losses": 0,
   "breaker_until": null,
   "last_check": "2026-11-20 20:26",
