@@ -16,8 +16,8 @@
   "last_report_date": "2026-11-21",
   "consecutive_losses": 0,
   "breaker_until": null,
-  "last_check": "2026-11-25 15:00",
-  "last_reason": "خارج ساعات التداول المسموحة",
+  "last_check": "2026-11-25 23:39",
+  "last_reason": "مرفوضة (BUY_W): D1 هابط — لا شراء عكس الاتجاه اليومي",
   "tp1_hit": true,
   "tp2_hit": true,
   "trade_history": [
